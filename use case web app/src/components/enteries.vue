@@ -1,172 +1,174 @@
-<script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+<script>
+export default {
+  name: 'Entries',
 
-const route = useRoute()
-
-// ── Route params ───────────────────────────────────────────────────────────────
-const roundId = Number(route.query.round_id)
-const archer = (() => {
-  try {
-    return JSON.parse(route.query.archers)[0]
-  } catch {
-    return null
-  }
-})()
-
-// ── Data ───────────────────────────────────────────────────────────────────────
-const ranges = ref([])
-const loadError = ref('')
-const activeRangeIdx = ref(0)
-
-async function fetchRanges() {
-  try {
-    const res = await fetch(`/apis.php?query=ranges_for_round&round_id=${roundId}`)
-    if (!res.ok) {
-      loadError.value = `Server error ${res.status}`
-      return
+  data() {
+    return {
+      ARROW_VALUES: ['X', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1', 'M'],
+      ARROWS_PER_END: 6,
+      roundId: 0,
+      archer: null,
+      ranges: [],
+      loadError: '',
+      activeRangeIdx: 0,
+      scores: [],
+      showSummary: false,
+      submitting: false,
+      submitError: '',
+      submitDone: false,
+      picking: null,
     }
-    const data = await res.json()
-    ranges.value = data
-  } catch (err) {
-    loadError.value = `Could not reach server (${err.message})`
-  }
-}
+  },
 
-onMounted(fetchRanges)
+  computed: {
+    activeRange() {
+      return this.ranges[this.activeRangeIdx] ?? null
+    },
+    activeRangeScores() {
+      return this.scores[this.activeRangeIdx] ?? []
+    },
+    grandTotal() {
+      return this.scores.reduce(
+        (sum, rangeEnds) => sum + rangeEnds.reduce((s, end) => s + this.endTotal(end), 0),
+        0,
+      )
+    },
+    allComplete() {
+      return (
+        this.scores.length > 0 &&
+        this.scores.every((rangeEnds) => rangeEnds.every((end) => end.every((s) => s !== null)))
+      )
+    },
+    isComp() {
+      return !!(this.$route.query.comp_id && this.$route.query.comp_id !== 'null')
+    },
+  },
 
-// ── Score state ────────────────────────────────────────────────────────────────
-// scores[rangeIdx][endIdx][arrowIdx] = score string or null
-const ARROW_VALUES = ['X', '10', '9', '8', '7', '6', '5', '4', '3', '2', '1', 'M']
-const ARROWS_PER_END = 6
+  watch: {
+    ranges: {
+      handler: 'ensureScores',
+      immediate: true,
+    },
+  },
 
-const scores = ref([])
+  methods: {
+    async fetchRanges() {
+      try {
+        const res = await fetch(`/apis.php?query=ranges_for_round&round_id=${this.roundId}`)
+        if (!res.ok) {
+          this.loadError = `Server error ${res.status}`
+          return
+        }
+        const data = await res.json()
+        this.ranges = data
+      } catch (err) {
+        this.loadError = `Could not reach server (${err.message})`
+      }
+    },
 
-function ensureScores() {
-  scores.value = ranges.value.map((rng) =>
-    Array.from({ length: Number(rng.num_ends) }, () => Array(ARROWS_PER_END).fill(null)),
-  )
-}
+    ensureScores() {
+      this.scores = this.ranges.map((rng) =>
+        Array.from({ length: Number(rng.num_ends) }, () => Array(this.ARROWS_PER_END).fill(null)),
+      )
+    },
 
-watch(ranges, ensureScores, { immediate: true })
+    numericVal(s) {
+      if (s === null) return 0
+      if (s === 'X') return 10
+      if (s === 'M') return 0
+      return Number(s)
+    },
 
-// ── Active range ───────────────────────────────────────────────────────────────
-const activeRange = computed(() => ranges.value[activeRangeIdx.value] ?? null)
-const activeRangeScores = computed(() => scores.value[activeRangeIdx.value] ?? [])
+    endTotal(endArrows) {
+      return endArrows.reduce((sum, s) => sum + this.numericVal(s), 0)
+    },
 
-// ── Scoring helpers ────────────────────────────────────────────────────────────
-function numericVal(s) {
-  if (s === null) return 0
-  if (s === 'X') return 10
-  if (s === 'M') return 0
-  return Number(s)
-}
+    runningTotal(endIdx) {
+      let total = 0
+      for (let e = 0; e <= endIdx; e++) {
+        total += this.endTotal(this.activeRangeScores[e] ?? [])
+      }
+      return total
+    },
 
-function endTotal(endArrows) {
-  return endArrows.reduce((sum, s) => sum + numericVal(s), 0)
-}
+    rangeTotal(rangeIdx) {
+      return (this.scores[rangeIdx] ?? []).reduce((s, end) => s + this.endTotal(end), 0)
+    },
 
-function runningTotal(endIdx) {
-  let total = 0
-  for (let e = 0; e <= endIdx; e++) {
-    total += endTotal(activeRangeScores.value[e] ?? [])
-  }
-  return total
-}
+    async acceptSubmit() {
+      this.submitting = true
+      this.submitError = ''
+      const payload = {
+        archer_id: this.archer.archer_id,
+        round_def_id: this.roundId,
+        division_id: this.archer.division_id,
+        age_class_id: this.archer.age_class_id,
+        is_competition: this.isComp,
+        comp_id: this.isComp ? Number(this.$route.query.comp_id) : null,
+        ranges: this.ranges.map((rng, idx) => ({
+          distance: rng.distance,
+          target_size_cm: rng.target_size_cm,
+          ends: this.scores[idx],
+        })),
+      }
+      try {
+        const res = await fetch('/apis.php?query=submit_session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const data = await res.json()
+        if (!res.ok || data.error) {
+          this.submitError = data.error ?? `Server error ${res.status}`
+        } else {
+          this.submitDone = true
+        }
+      } catch (err) {
+        this.submitError = `Could not reach server (${err.message})`
+      } finally {
+        this.submitting = false
+      }
+    },
 
-const grandTotal = computed(() =>
-  scores.value.reduce(
-    (sum, rangeEnds) => sum + rangeEnds.reduce((s, end) => s + endTotal(end), 0),
-    0,
-  ),
-)
+    openPicker(endIdx, arrowIdx) {
+      this.picking = { endIdx, arrowIdx }
+    },
 
-// ── All ends complete ──────────────────────────────────────────────────────────
-const allComplete = computed(() =>
-  scores.value.length > 0 &&
-  scores.value.every((rangeEnds) => rangeEnds.every((end) => end.every((s) => s !== null))),
-)
+    pickScore(val) {
+      if (!this.picking) return
+      const { endIdx, arrowIdx } = this.picking
+      this.scores[this.activeRangeIdx][endIdx][arrowIdx] = val
+      this.picking = null
+    },
 
-// ── Summary overlay ────────────────────────────────────────────────────────────
-const showSummary = ref(false)
-const submitting = ref(false)
-const submitError = ref('')
-const submitDone = ref(false)
+    closePicker() {
+      this.picking = null
+    },
 
-const isComp = computed(
-  () => !!(route.query.comp_id && route.query.comp_id !== 'null'),
-)
+    arrowLabel(s) {
+      return s === null ? '—' : s
+    },
 
-function rangeTotal(rangeIdx) {
-  return (scores.value[rangeIdx] ?? []).reduce((s, end) => s + endTotal(end), 0)
-}
+    arrowClass(s) {
+      if (s === null) return 'arrow-empty'
+      if (s === 'X' || s === '10') return 'arrow-gold'
+      if (s === '9' || s === '8') return 'arrow-red'
+      if (s === '7' || s === '6') return 'arrow-blue'
+      if (s === '5' || s === '4') return 'arrow-black'
+      if (s === '3' || s === '2' || s === '1') return 'arrow-white'
+      return 'arrow-miss'
+    },
+  },
 
-async function acceptSubmit() {
-  submitting.value = true
-  submitError.value = ''
-  const payload = {
-    archer_id:    archer.archer_id,
-    round_def_id: roundId,
-    division_id:  archer.division_id,
-    age_class_id: archer.age_class_id,
-    is_competition: isComp.value,
-    comp_id:      isComp.value ? Number(route.query.comp_id) : null,
-    ranges: ranges.value.map((rng, idx) => ({
-      distance:       rng.distance,
-      target_size_cm: rng.target_size_cm,
-      ends:           scores.value[idx],
-    })),
-  }
-  try {
-    const res = await fetch('/apis.php?query=submit_session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    const data = await res.json()
-    if (!res.ok || data.error) {
-      submitError.value = data.error ?? `Server error ${res.status}`
-    } else {
-      submitDone.value = true
+  mounted() {
+    this.roundId = Number(this.$route.query.round_id)
+    try {
+      this.archer = JSON.parse(this.$route.query.archers)[0]
+    } catch {
+      this.archer = null
     }
-  } catch (err) {
-    submitError.value = `Could not reach server (${err.message})`
-  } finally {
-    submitting.value = false
-  }
-}
-
-// ── Arrow picker ───────────────────────────────────────────────────────────────
-const picking = ref(null) // { endIdx, arrowIdx }
-
-function openPicker(endIdx, arrowIdx) {
-  picking.value = { endIdx, arrowIdx }
-}
-
-function pickScore(val) {
-  if (!picking.value) return
-  const { endIdx, arrowIdx } = picking.value
-  scores.value[activeRangeIdx.value][endIdx][arrowIdx] = val
-  picking.value = null
-}
-
-function closePicker() {
-  picking.value = null
-}
-
-// ── Arrow display ──────────────────────────────────────────────────────────────
-function arrowLabel(s) {
-  return s === null ? '—' : s
-}
-
-function arrowClass(s) {
-  if (s === null) return 'arrow-empty'
-  if (s === 'X' || s === '10') return 'arrow-gold'
-  if (s === '9' || s === '8') return 'arrow-red'
-  if (s === '7' || s === '6') return 'arrow-blue'
-  if (s === '5' || s === '4') return 'arrow-black'
-  if (s === '3' || s === '2' || s === '1') return 'arrow-white'
-  return 'arrow-miss'
+    this.fetchRanges()
+  },
 }
 </script>
 
@@ -208,8 +210,8 @@ function arrowClass(s) {
         {{ archer.name_given }} {{ archer.name_surname }},
         {{ archer.gender === 'M' ? 'Male' : 'Female' }},
         {{ archer.birth_year }} – {{ new Date().getFullYear() - archer.birth_year }}
-        — {{ route.query.round_name }}, {{ archer.age_class_name }}, {{ archer.division_name }},
-        {{ (route.query.comp_id && route.query.comp_id !== 'null') ? 'Competition' : 'No competition' }}
+        — {{ $route.query.round_name }}, {{ archer.age_class_name }}, {{ archer.division_name }},
+        {{ ($route.query.comp_id && $route.query.comp_id !== 'null') ? 'Competition' : 'No competition' }}
       </div>
 
     <!-- ── Main: ends for active range ────────────────────────────────────────── -->
@@ -314,7 +316,7 @@ function arrowClass(s) {
               </div>
               <div class="summary-row">
                 <span class="summary-lbl">Round</span>
-                <span>{{ route.query.round_name }}</span>
+                <span>{{ $route.query.round_name }}</span>
               </div>
               <div class="summary-row">
                 <span class="summary-lbl">Class</span>

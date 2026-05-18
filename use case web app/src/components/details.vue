@@ -1,193 +1,182 @@
-<script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+<script>
+export default {
+  name: 'Details',
 
-const router = useRouter()
-
-const rounds = ref([])
-const archers = ref([])
-const divisions = ref([])
-const ageClasses = ref([])
-const equivalentRounds = ref([])
-const categories = ref([])
-const competitions = ref([])
-const loadError = ref('')
-
-const selectedArcherId = ref('')
-const selectedRoundId = ref('')
-const selectedAgeClassId = ref('')
-const selectedDivisionId = ref('')
-const isCompetition = ref(false)
-const selectedCompId = ref('')
-
-async function fetchData() {
-  loadError.value = ''
-  try {
-    const res = await fetch('/apis.php?query=setup_data')
-    if (!res.ok) {
-      const text = await res.text()
-      loadError.value = `Server error ${res.status}: ${text}`
-      return
+  data() {
+    return {
+      rounds: [],
+      archers: [],
+      divisions: [],
+      ageClasses: [],
+      equivalentRounds: [],
+      categories: [],
+      competitions: [],
+      loadError: '',
+      selectedArcherId: '',
+      selectedRoundId: '',
+      selectedAgeClassId: '',
+      selectedDivisionId: '',
+      isCompetition: false,
+      selectedCompId: '',
     }
-    const data = await res.json()
-    rounds.value = data.rounds ?? []
-    archers.value = data.archers ?? []
-    divisions.value = data.divisions ?? []
-    ageClasses.value = data.age_classes ?? []
-    categories.value = data.categories ?? []
-    equivalentRounds.value = data.equivalent_rounds ?? []
-    competitions.value = data.competitions ?? []
-  } catch (err) {
-    loadError.value = `Could not reach PHP server — is it running? (${err.message})`
-  }
-}
+  },
 
-// ── Selected archer object ────────────────────────────────────────────────────
-const selectedArcher = computed(() =>
-  archers.value.find((a) => a.archer_id == selectedArcherId.value) ?? null,
-)
-
-// ── Core: valid category IDs for a given round ────────────────────────────────
-function categoryIdsForRound(roundId) {
-  // Case A: round is an equivalent round
-  const asEquivalent = equivalentRounds.value
-    .filter((er) => Number(er.equivalent_round_id) === roundId)
-    .map((er) => Number(er.category_id))
-  if (asEquivalent.length > 0) return new Set(asEquivalent)
-
-  // Case B: round is a base round
-  const isBase = equivalentRounds.value.some((er) => Number(er.base_round_id) === roundId)
-  if (isBase) {
-    const mappedCats = new Set(equivalentRounds.value.map((er) => Number(er.category_id)))
-    return new Set(
-      categories.value.map((c) => Number(c.category_id)).filter((id) => !mappedCats.has(id)),
-    )
-  }
-
-  // Case C: no restriction
-  return null
-}
-
-// ── Valid age classes for an archer on a given round ─────────────────────────
-function validAgeClassesFor(archer, roundId) {
-  const age = new Date().getFullYear() - Number(archer.birth_year)
-  const catIds = categoryIdsForRound(roundId)
-
-  return ageClasses.value.filter((ac) => {
-    if (ac.gender !== archer.gender) return false
-    if (ac.min_age !== null && age < Number(ac.min_age)) return false
-    if (ac.max_age !== null && age > Number(ac.max_age)) return false
-    if (catIds !== null) {
-      return categories.value.some(
-        (c) =>
-          catIds.has(Number(c.category_id)) &&
-          Number(c.age_class_id) === Number(ac.age_class_id),
-      )
-    }
-    return true
-  })
-}
-
-// ── Valid divisions for a round + age class ───────────────────────────────────
-function validDivisionsFor(roundId, ageClassId) {
-  const catIds = categoryIdsForRound(roundId)
-  if (catIds === null) return divisions.value
-  return divisions.value.filter((d) =>
-    categories.value.some(
-      (c) =>
-        catIds.has(Number(c.category_id)) &&
-        Number(c.division_id) === Number(d.division_id) &&
-        Number(c.age_class_id) === Number(ageClassId),
-    ),
-  )
-}
-
-// ── Filtered options ──────────────────────────────────────────────────────────
-const validRounds = computed(() => {
-  if (!selectedArcher.value) return []
-  return rounds.value.filter(
-    (r) => validAgeClassesFor(selectedArcher.value, Number(r.round_def_id)).length > 0,
-  )
-})
-
-const validAgeClasses = computed(() => {
-  if (!selectedArcher.value || !selectedRoundId.value) return []
-  return validAgeClassesFor(selectedArcher.value, Number(selectedRoundId.value))
-})
-
-const validDivisions = computed(() => {
-  if (!selectedRoundId.value || !selectedAgeClassId.value) return []
-  return validDivisionsFor(Number(selectedRoundId.value), Number(selectedAgeClassId.value))
-})
-
-// ── Auto-select when only one option ─────────────────────────────────────────
-watch(validAgeClasses, (classes) => {
-  if (classes.length === 1) selectedAgeClassId.value = String(classes[0].age_class_id)
-})
-
-watch(validDivisions, (divs) => {
-  if (divs.length === 1) selectedDivisionId.value = String(divs[0].division_id)
-})
-
-// ── Reset cascade when selections change ─────────────────────────────────────
-watch(selectedArcherId, () => {
-  selectedRoundId.value = ''
-  selectedAgeClassId.value = ''
-  selectedDivisionId.value = ''
-})
-
-watch(selectedRoundId, () => {
-  selectedAgeClassId.value = ''
-  selectedDivisionId.value = ''
-})
-
-watch(selectedAgeClassId, () => {
-  selectedDivisionId.value = ''
-})
-
-watch(isCompetition, (val) => {
-  if (!val) selectedCompId.value = ''
-})
-
-// ── Submit ────────────────────────────────────────────────────────────────────
-const canSubmit = computed(
-  () =>
-    selectedArcher.value &&
-    selectedRoundId.value &&
-    selectedAgeClassId.value &&
-    selectedDivisionId.value &&
-    (!isCompetition.value || selectedCompId.value),
-)
-
-function submit() {
-  if (!canSubmit.value) return
-  const selectedRound = rounds.value.find((r) => r.round_def_id == selectedRoundId.value)
-  const selectedAgeClass = ageClasses.value.find((ac) => ac.age_class_id == selectedAgeClassId.value)
-  const selectedDivision = divisions.value.find((d) => d.division_id == selectedDivisionId.value)
-  router.push({
-    path: '/test',
-    query: {
-      round_id: selectedRoundId.value,
-      round_name: selectedRound?.round_name ?? '',
-      comp_id: isCompetition.value ? selectedCompId.value : null,
-      archers: JSON.stringify([
-        {
-          archer_id: selectedArcher.value.archer_id,
-          name_given: selectedArcher.value.name_given,
-          name_surname: selectedArcher.value.name_surname,
-          division_id: Number(selectedDivisionId.value),
-          division_name: selectedDivision?.division_name ?? '',
-          age_class_id: Number(selectedAgeClassId.value),
-          age_class_name: selectedAgeClass?.class_name ?? '',
-          gender: selectedArcher.value.gender,
-          birth_year: selectedArcher.value.birth_year,
-        },
-      ]),
+  computed: {
+    selectedArcher() {
+      return this.archers.find((a) => a.archer_id == this.selectedArcherId) ?? null
     },
-  })
-}
+    validRounds() {
+      if (!this.selectedArcher) return []
+      return this.rounds.filter(
+        (r) => this.validAgeClassesFor(this.selectedArcher, Number(r.round_def_id)).length > 0,
+      )
+    },
+    validAgeClasses() {
+      if (!this.selectedArcher || !this.selectedRoundId) return []
+      return this.validAgeClassesFor(this.selectedArcher, Number(this.selectedRoundId))
+    },
+    validDivisions() {
+      if (!this.selectedRoundId || !this.selectedAgeClassId) return []
+      return this.validDivisionsFor(Number(this.selectedRoundId), Number(this.selectedAgeClassId))
+    },
+    canSubmit() {
+      return (
+        this.selectedArcher &&
+        this.selectedRoundId &&
+        this.selectedAgeClassId &&
+        this.selectedDivisionId &&
+        (!this.isCompetition || this.selectedCompId)
+      )
+    },
+  },
 
-onMounted(fetchData)
+  watch: {
+    validAgeClasses(classes) {
+      if (classes.length === 1) this.selectedAgeClassId = String(classes[0].age_class_id)
+    },
+    validDivisions(divs) {
+      if (divs.length === 1) this.selectedDivisionId = String(divs[0].division_id)
+    },
+    selectedArcherId() {
+      this.selectedRoundId = ''
+      this.selectedAgeClassId = ''
+      this.selectedDivisionId = ''
+    },
+    selectedRoundId() {
+      this.selectedAgeClassId = ''
+      this.selectedDivisionId = ''
+    },
+    selectedAgeClassId() {
+      this.selectedDivisionId = ''
+    },
+    isCompetition(val) {
+      if (!val) this.selectedCompId = ''
+    },
+  },
+
+  methods: {
+    async fetchData() {
+      this.loadError = ''
+      try {
+        const res = await fetch('/apis.php?query=setup_data')
+        if (!res.ok) {
+          const text = await res.text()
+          this.loadError = `Server error ${res.status}: ${text}`
+          return
+        }
+        const data = await res.json()
+        this.rounds = data.rounds ?? []
+        this.archers = data.archers ?? []
+        this.divisions = data.divisions ?? []
+        this.ageClasses = data.age_classes ?? []
+        this.categories = data.categories ?? []
+        this.equivalentRounds = data.equivalent_rounds ?? []
+        this.competitions = data.competitions ?? []
+      } catch (err) {
+        this.loadError = `Could not reach PHP server — is it running? (${err.message})`
+      }
+    },
+
+    categoryIdsForRound(roundId) {
+      const asEquivalent = this.equivalentRounds
+        .filter((er) => Number(er.equivalent_round_id) === roundId)
+        .map((er) => Number(er.category_id))
+      if (asEquivalent.length > 0) return new Set(asEquivalent)
+
+      const isBase = this.equivalentRounds.some((er) => Number(er.base_round_id) === roundId)
+      if (isBase) {
+        const mappedCats = new Set(this.equivalentRounds.map((er) => Number(er.category_id)))
+        return new Set(
+          this.categories.map((c) => Number(c.category_id)).filter((id) => !mappedCats.has(id)),
+        )
+      }
+      return null
+    },
+
+    validAgeClassesFor(archer, roundId) {
+      const age = new Date().getFullYear() - Number(archer.birth_year)
+      const catIds = this.categoryIdsForRound(roundId)
+      return this.ageClasses.filter((ac) => {
+        if (ac.gender !== archer.gender) return false
+        if (ac.min_age !== null && age < Number(ac.min_age)) return false
+        if (ac.max_age !== null && age > Number(ac.max_age)) return false
+        if (catIds !== null) {
+          return this.categories.some(
+            (c) =>
+              catIds.has(Number(c.category_id)) &&
+              Number(c.age_class_id) === Number(ac.age_class_id),
+          )
+        }
+        return true
+      })
+    },
+
+    validDivisionsFor(roundId, ageClassId) {
+      const catIds = this.categoryIdsForRound(roundId)
+      if (catIds === null) return this.divisions
+      return this.divisions.filter((d) =>
+        this.categories.some(
+          (c) =>
+            catIds.has(Number(c.category_id)) &&
+            Number(c.division_id) === Number(d.division_id) &&
+            Number(c.age_class_id) === Number(ageClassId),
+        ),
+      )
+    },
+
+    submit() {
+      if (!this.canSubmit) return
+      const selectedRound = this.rounds.find((r) => r.round_def_id == this.selectedRoundId)
+      const selectedAgeClass = this.ageClasses.find((ac) => ac.age_class_id == this.selectedAgeClassId)
+      const selectedDivision = this.divisions.find((d) => d.division_id == this.selectedDivisionId)
+      this.$router.push({
+        path: '/test',
+        query: {
+          round_id: this.selectedRoundId,
+          round_name: selectedRound?.round_name ?? '',
+          comp_id: this.isCompetition ? this.selectedCompId : null,
+          archers: JSON.stringify([
+            {
+              archer_id: this.selectedArcher.archer_id,
+              name_given: this.selectedArcher.name_given,
+              name_surname: this.selectedArcher.name_surname,
+              division_id: Number(this.selectedDivisionId),
+              division_name: selectedDivision?.division_name ?? '',
+              age_class_id: Number(this.selectedAgeClassId),
+              age_class_name: selectedAgeClass?.class_name ?? '',
+              gender: this.selectedArcher.gender,
+              birth_year: this.selectedArcher.birth_year,
+            },
+          ]),
+        },
+      })
+    },
+  },
+
+  mounted() {
+    this.fetchData()
+  },
+}
 </script>
 
 <template>
