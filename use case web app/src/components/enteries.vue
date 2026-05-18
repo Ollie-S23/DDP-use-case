@@ -482,6 +482,9 @@ function arrowClass(s) {
 /* ── Ends area ────────────────────────────────────────────────────────────── */
 .ends-area {
   max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 .ends-heading {
