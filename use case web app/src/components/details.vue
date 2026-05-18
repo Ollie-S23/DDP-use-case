@@ -14,20 +14,27 @@ const categories = ref([])
 const selectedRoundId = ref('')
 const selectedArcherId = ref('')
 const archerList = ref([])
+const loadError = ref('')
 
 // Single request — server joins round_def with range_def for arrow_count
 async function fetchData() {
+  loadError.value = ''
   try {
     const res = await fetch('/apis.php?query=setup_data')
+    if (!res.ok) {
+      const text = await res.text()
+      loadError.value = `Server error ${res.status}: ${text}`
+      return
+    }
     const data = await res.json()
-    rounds.value = data.rounds
-    archers.value = data.archers
-    divisions.value = data.divisions
-    ageClasses.value = data.age_classes
-    categories.value = data.categories
-    equivalentRounds.value = data.equivalent_rounds
+    rounds.value = data.rounds ?? []
+    archers.value = data.archers ?? []
+    divisions.value = data.divisions ?? []
+    ageClasses.value = data.age_classes ?? []
+    categories.value = data.categories ?? []
+    equivalentRounds.value = data.equivalent_rounds ?? []
   } catch (err) {
-    console.error('Failed to load setup data:', err)
+    loadError.value = `Could not reach PHP server — is it running? (${err.message})`
   }
 }
 
@@ -201,6 +208,9 @@ onMounted(fetchData)
 <template>
   <div class="d-flex justify-content-center pt-4 px-2">
     <div class="selection-card p-4">
+      <div v-if="loadError" class="alert alert-danger mb-3" style="font-size:0.85rem;">
+        {{ loadError }}
+      </div>
       <h5 class="text-center fw-bold text-white mb-3">Choose round</h5>
       <select v-model="selectedRoundId" class="form-select mb-4">
         <option value="" disabled>-- Select a round --</option>

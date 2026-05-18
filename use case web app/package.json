@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"vite\" \"C:\\\\xampp_copy01\\\\php\\\\php.exe -S localhost:8080 -t ..\"",
+    "dev:vite": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "run-s lint:*",
@@ -21,6 +22,7 @@
     "@eslint/js": "^10.0.1",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vitejs/plugin-vue-jsx": "^5.1.5",
+    "concurrently": "^9.2.1",
     "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-oxlint": "~1.60.0",

@@ -12,8 +12,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 $input  = json_decode(file_get_contents('php://input'), true);
 
 // ── SQLite file-based database (no server required) ───────────────────────────
-$dbPath  = __DIR__ . '/src/database/ddp_v5.sqlite';
-$sqlPath = __DIR__ . '/src/database/ddp_v5.sql';
+$dbPath  = __DIR__ . '/use case web app/src/database/ddp_v5.sqlite';
+$sqlPath = __DIR__ . '/use case web app/src/database/ddp_v5_draft3 (5) (1).sql';
 $db = getDb($dbPath, $sqlPath);
 
 // ── Named-query route (?query=<name>) ─────────────────────────────────────────

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 14, 2026 at 03:17 AM
+-- Generation Time: May 09, 2026 at 07:50 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -1743,26 +1743,7 @@ INSERT INTO `round_def` (`round_def_id`, `round_name`) VALUES
 (10, 'Adelaide'),
 (11, 'Short Adelaide'),
 (12, 'Hobart'),
-(13, 'Perth'),
-(14, 'Junior Canberra'),
-(15, 'Mini Canberra'),
-(16, 'Grange'),
-(17, 'Melbourne'),
-(18, 'Darwin'),
-(19, 'Geelong'),
-(20, 'Newcastle'),
-(21, 'Holt'),
-(22, 'Samford'),
-(23, 'Drake'),
-(24, 'Wollongong'),
-(25, 'Townsville'),
-(26, 'Lauceston'),
-(27, 'WA70/720'),
-(28, 'WA60/720'),
-(29, 'WA50/720 WABB50/720'),
-(30, 'AA40/720'),
-(31, 'AA30/720'),
-(32, 'AA20/720');
+(13, 'Perth');
 
 -- --------------------------------------------------------
 
