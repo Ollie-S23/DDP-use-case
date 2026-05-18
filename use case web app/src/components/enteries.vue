@@ -81,6 +81,61 @@ const grandTotal = computed(() =>
   ),
 )
 
+// ── All ends complete ──────────────────────────────────────────────────────────
+const allComplete = computed(() =>
+  scores.value.length > 0 &&
+  scores.value.every((rangeEnds) => rangeEnds.every((end) => end.every((s) => s !== null))),
+)
+
+// ── Summary overlay ────────────────────────────────────────────────────────────
+const showSummary = ref(false)
+const submitting = ref(false)
+const submitError = ref('')
+const submitDone = ref(false)
+
+const isComp = computed(
+  () => !!(route.query.comp_id && route.query.comp_id !== 'null'),
+)
+
+function rangeTotal(rangeIdx) {
+  return (scores.value[rangeIdx] ?? []).reduce((s, end) => s + endTotal(end), 0)
+}
+
+async function acceptSubmit() {
+  submitting.value = true
+  submitError.value = ''
+  const payload = {
+    archer_id:    archer.archer_id,
+    round_def_id: roundId,
+    division_id:  archer.division_id,
+    age_class_id: archer.age_class_id,
+    is_competition: isComp.value,
+    comp_id:      isComp.value ? Number(route.query.comp_id) : null,
+    ranges: ranges.value.map((rng, idx) => ({
+      distance:       rng.distance,
+      target_size_cm: rng.target_size_cm,
+      ends:           scores.value[idx],
+    })),
+  }
+  try {
+    const res = await fetch('/apis.php?query=submit_session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    const data = await res.json()
+    if (!res.ok || data.error) {
+      submitError.value = data.error ?? `Server error ${res.status}`
+    } else {
+      submitDone.value = true
+    }
+  } catch (err) {
+    submitError.value = `Could not reach server (${err.message})`
+  } finally {
+    submitting.value = false
+  }
+}
+
 // ── Arrow picker ───────────────────────────────────────────────────────────────
 const picking = ref(null) // { endIdx, arrowIdx }
 
@@ -196,6 +251,13 @@ function arrowClass(s) {
           </div>
         </div>
       </div>
+
+      <!-- Submit button: appears when all ends are filled -->
+      <div v-if="allComplete" class="submit-bar p-3">
+        <button class="submit-btn w-100" @click="showSummary = true">
+          Submit Session
+        </button>
+      </div>
     </main>
     </div>
 
@@ -216,6 +278,112 @@ function arrowClass(s) {
             </button>
           </div>
           <button class="picker-cancel" @click="closePicker">Cancel</button>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- ── Summary / confirm overlay ────────────────────────────────────────── -->
+    <Teleport to="body">
+      <div v-if="showSummary" class="picker-overlay">
+        <div class="summary-modal">
+
+          <!-- Success state -->
+          <template v-if="submitDone">
+            <div class="summary-title">Submitted!</div>
+            <p class="summary-ok-msg">
+              {{ isComp
+                ? 'Your competition entry is pending review by a verified recorder.'
+                : 'Your practice round has been saved to your profile.' }}
+            </p>
+            <button class="submit-btn w-100 mt-3" @click="showSummary = false; submitDone = false">
+              Close
+            </button>
+          </template>
+
+          <!-- Review state -->
+          <template v-else>
+            <div class="summary-title">Session Summary</div>
+
+            <!-- Archer + round details -->
+            <div class="summary-section" v-if="archer">
+              <div class="summary-row">
+                <span class="summary-lbl">Archer</span>
+                <span>{{ archer.name_given }} {{ archer.name_surname }},
+                  {{ archer.gender === 'M' ? 'Male' : 'Female' }},
+                  {{ archer.birth_year }} – {{ new Date().getFullYear() - archer.birth_year }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-lbl">Round</span>
+                <span>{{ route.query.round_name }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-lbl">Class</span>
+                <span>{{ archer.age_class_name }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-lbl">Division</span>
+                <span>{{ archer.division_name }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-lbl">Competition</span>
+                <span>{{ isComp ? 'Yes' : 'No' }}</span>
+              </div>
+            </div>
+
+            <!-- Per-range score breakdown -->
+            <div class="summary-section">
+              <div
+                v-for="(rng, ri) in ranges"
+                :key="`${rng.distance}-${rng.target_size_cm}`"
+                class="summary-range mb-2"
+              >
+                <div class="summary-range-head">
+                  {{ rng.distance }}m — {{ rng.target_size_cm }}cm face
+                  <span class="summary-range-total">{{ rangeTotal(ri) }} pts</span>
+                </div>
+                <div
+                  v-for="(endArrows, ei) in scores[ri]"
+                  :key="ei"
+                  class="summary-end-row"
+                >
+                  <span class="summary-end-lbl">End {{ ei + 1 }}</span>
+                  <span
+                    v-for="(s, ai) in endArrows"
+                    :key="ai"
+                    class="summary-arrow-chip"
+                    :class="arrowClass(s)"
+                  >{{ s }}</span>
+                  <span class="summary-end-score">= {{ endTotal(endArrows) }}</span>
+                </div>
+              </div>
+              <div class="summary-grand-total">Grand Total: {{ grandTotal }}</div>
+            </div>
+
+            <!-- Conditional message -->
+            <div class="summary-message" :class="isComp ? 'msg-comp' : 'msg-practice'">
+              <template v-if="isComp">
+                As a competition has been selected, this request will hold pending until a verified recorder reviews the request.
+              </template>
+              <template v-else>
+                A competition was not applied. All information will be added to your profile. You are responsible for the correct details. A verified recorder is not responsible but may in the future alter your details.
+              </template>
+            </div>
+
+            <div v-if="submitError" class="alert alert-danger mt-2 mb-0" style="font-size:0.8rem">
+              {{ submitError }}
+            </div>
+
+            <!-- Actions -->
+            <div class="summary-actions mt-3">
+              <button class="summary-cancel-btn" @click="showSummary = false" :disabled="submitting">
+                Cancel
+              </button>
+              <button class="submit-btn flex-grow-1" @click="acceptSubmit" :disabled="submitting">
+                {{ submitting ? 'Submitting…' : 'Accept' }}
+              </button>
+            </div>
+          </template>
+
         </div>
       </div>
     </Teleport>
@@ -471,5 +639,173 @@ function arrowClass(s) {
 
 .picker-cancel:hover {
   background: #3d7a6a;
+}
+
+/* ── Submit bar + button ──────────────────────────────────────────────────── */
+.submit-bar {
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.submit-btn {
+  background: #3aab90;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #2d8a72;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Summary modal ────────────────────────────────────────────────────────── */
+.summary-modal {
+  background: #1e332e;
+  border-radius: 14px;
+  padding: 24px;
+  width: min(680px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.summary-title {
+  color: #a0ffe8;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.summary-section {
+  background: rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.summary-row {
+  display: flex;
+  gap: 10px;
+  color: #d0f0ea;
+  font-size: 0.85rem;
+  padding: 3px 0;
+}
+
+.summary-lbl {
+  color: #a0ffe8;
+  font-weight: 600;
+  min-width: 80px;
+}
+
+.summary-range-head {
+  color: #a0ffe8;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.summary-range-total {
+  color: #fff;
+}
+
+.summary-end-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.summary-end-lbl {
+  color: #6a9990;
+  font-size: 0.75rem;
+  min-width: 44px;
+}
+
+.summary-arrow-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.summary-end-score {
+  color: #d0f0ea;
+  font-size: 0.8rem;
+  margin-left: 4px;
+}
+
+.summary-grand-total {
+  color: #a0ffe8;
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: right;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.summary-message {
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.msg-comp {
+  background: rgba(244, 180, 0, 0.12);
+  border: 1px solid rgba(244, 180, 0, 0.35);
+  color: #f4d060;
+}
+
+.msg-practice {
+  background: rgba(52, 152, 219, 0.12);
+  border: 1px solid rgba(52, 152, 219, 0.35);
+  color: #a8d8f0;
+}
+
+.summary-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.summary-cancel-btn {
+  background: #2d5a50;
+  color: #d0f0ea;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.summary-cancel-btn:hover:not(:disabled) {
+  background: #3d7a6a;
+}
+
+.summary-ok-msg {
+  color: #d0f0ea;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 8px;
 }
 </style>
