@@ -133,7 +133,7 @@ function handleNamedQuery(PDO $db, string $name): void {
                     ORDER  BY rd.round_name
                 "),
                 'archers'           => queryRows($db,
-                    "SELECT * FROM archer_details ORDER BY name_surname, name_given"
+                    "SELECT * FROM archer_details ORDER BY name_given, name_surname"
                 ),
                 'divisions'         => queryRows($db,
                     "SELECT * FROM division ORDER BY division_name"
@@ -258,6 +258,23 @@ function handleNamedQuery(PDO $db, string $name): void {
                 }
             }
             echo json_encode(queryRows($db, $sql));
+            break;
+
+        // Ranges (with end count) for a given round.
+        // Params: round_id (int)
+        case 'ranges_for_round':
+            $round_id = (int)($_GET['round_id'] ?? 0);
+            if (!$round_id) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Missing round_id']);
+                return;
+            }
+            echo json_encode(queryRows($db, "
+                SELECT *
+                FROM   range_def
+                WHERE  round_def_id = $round_id
+                ORDER  BY distance DESC
+            "));
             break;
 
         default:

@@ -161,10 +161,14 @@ const canSubmit = computed(
 
 function submit() {
   if (!canSubmit.value) return
+  const selectedRound = rounds.value.find((r) => r.round_def_id == selectedRoundId.value)
+  const selectedAgeClass = ageClasses.value.find((ac) => ac.age_class_id == selectedAgeClassId.value)
+  const selectedDivision = divisions.value.find((d) => d.division_id == selectedDivisionId.value)
   router.push({
     path: '/test',
     query: {
       round_id: selectedRoundId.value,
+      round_name: selectedRound?.round_name ?? '',
       comp_id: isCompetition.value ? selectedCompId.value : null,
       archers: JSON.stringify([
         {
@@ -172,7 +176,9 @@ function submit() {
           name_given: selectedArcher.value.name_given,
           name_surname: selectedArcher.value.name_surname,
           division_id: Number(selectedDivisionId.value),
+          division_name: selectedDivision?.division_name ?? '',
           age_class_id: Number(selectedAgeClassId.value),
+          age_class_name: selectedAgeClass?.class_name ?? '',
           gender: selectedArcher.value.gender,
           birth_year: selectedArcher.value.birth_year,
         },
