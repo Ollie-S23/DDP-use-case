@@ -297,7 +297,7 @@ export default {
                 ? 'Your competition entry is pending review by a verified recorder.'
                 : 'Your practice round has been saved to your profile.' }}
             </p>
-            <button class="submit-btn w-100 mt-3" @click="showSummary = false; submitDone = false">
+            <button class="submit-btn w-100 mt-3" @click="$router.push('/')">
               Close
             </button>
           </template>
