@@ -147,6 +147,9 @@ function handleNamedQuery(PDO $db, string $name): void {
                 'equivalent_rounds' => queryRows($db,
                     "SELECT * FROM equivalent_rounds"
                 ),
+                'competitions'      => queryRows($db,
+                    "SELECT comp_id, comp_name, comp_date FROM comp WHERE is_comp = 1 ORDER BY comp_date DESC"
+                ),
             ]);
             break;
 

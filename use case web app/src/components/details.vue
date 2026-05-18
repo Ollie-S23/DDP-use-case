@@ -10,12 +10,15 @@ const divisions = ref([])
 const ageClasses = ref([])
 const equivalentRounds = ref([])
 const categories = ref([])
+const competitions = ref([])
 const loadError = ref('')
 
 const selectedArcherId = ref('')
 const selectedRoundId = ref('')
 const selectedAgeClassId = ref('')
 const selectedDivisionId = ref('')
+const isCompetition = ref(false)
+const selectedCompId = ref('')
 
 async function fetchData() {
   loadError.value = ''
@@ -33,6 +36,7 @@ async function fetchData() {
     ageClasses.value = data.age_classes ?? []
     categories.value = data.categories ?? []
     equivalentRounds.value = data.equivalent_rounds ?? []
+    competitions.value = data.competitions ?? []
   } catch (err) {
     loadError.value = `Could not reach PHP server — is it running? (${err.message})`
   }
@@ -141,13 +145,18 @@ watch(selectedAgeClassId, () => {
   selectedDivisionId.value = ''
 })
 
+watch(isCompetition, (val) => {
+  if (!val) selectedCompId.value = ''
+})
+
 // ── Submit ────────────────────────────────────────────────────────────────────
 const canSubmit = computed(
   () =>
     selectedArcher.value &&
     selectedRoundId.value &&
     selectedAgeClassId.value &&
-    selectedDivisionId.value,
+    selectedDivisionId.value &&
+    (!isCompetition.value || selectedCompId.value),
 )
 
 function submit() {
@@ -156,6 +165,7 @@ function submit() {
     path: '/test',
     query: {
       round_id: selectedRoundId.value,
+      comp_id: isCompetition.value ? selectedCompId.value : null,
       archers: JSON.stringify([
         {
           archer_id: selectedArcher.value.archer_id,
@@ -190,6 +200,13 @@ onMounted(fetchData)
         </option>
       </select>
 
+      <!-- Archer debug info -->
+      <div v-if="selectedArcher" class="archer-info mb-4">
+        {{ selectedArcher.name_given }} {{ selectedArcher.name_surname }},
+        {{ selectedArcher.gender === 'M' ? 'Male' : 'Female' }},
+        {{ selectedArcher.birth_year }} – {{ new Date().getFullYear() - selectedArcher.birth_year }}
+      </div>
+
       <!-- Steps 2–4: shown once archer is selected -->
       <template v-if="selectedArcher">
         <!-- Round -->
@@ -222,6 +239,17 @@ onMounted(fetchData)
               </option>
             </select>
           </div>
+          <!-- Competition toggle -->
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <input id="isComp" v-model="isCompetition" type="checkbox" class="form-check-input mt-0" />
+            <label for="isComp" class="text-white mb-0">This is a competition</label>
+          </div>
+          <select v-if="isCompetition" v-model="selectedCompId" class="form-select mb-4">
+            <option value="" disabled>-- Select a competition --</option>
+            <option v-for="c in competitions" :key="c.comp_id" :value="c.comp_id">
+              {{ c.comp_name }} ({{ c.comp_date }})
+            </option>
+          </select>
         </template>
       </template>
 
@@ -236,6 +264,14 @@ onMounted(fetchData)
   border-radius: 8px;
   width: 600px;
   max-width: 95vw;
+}
+
+.archer-info {
+  background: rgba(0, 0, 0, 0.15);
+  color: #d0f0ea;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: 4px;
 }
 
 .done-btn {
