@@ -11,10 +11,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $method = $_SERVER['REQUEST_METHOD'];
 $input  = json_decode(file_get_contents('php://input'), true);
 
-// ── SQLite file-based database (no server required) ───────────────────────────
-$dbPath  = __DIR__ . '/use case web app/src/database/ddp_v5.sqlite';
-$sqlPath = __DIR__ . '/use case web app/src/database/ddp_v5_draft3 (5) (1).sql';
-$db = getDb($dbPath, $sqlPath);
+// ── MySQL via XAMPP ───────────────────────────────────────────────────────────
+try {
+    $db = new PDO('mysql:host=127.0.0.1;port=3306;dbname=ddp_v5_draft3;charset=utf8mb4', 'root', '', [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+    ]);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'DB connection failed: ' . $e->getMessage()]);
+    exit();
+}
 
 // ── Named-query route (?query=<name>) ─────────────────────────────────────────
 $queryName = isset($_GET['query']) ? preg_replace('/[^a-z0-9_]+/i', '', $_GET['query']) : null;
@@ -122,6 +129,7 @@ function handleNamedQuery(PDO $db, string $name): void {
                     FROM   round_def rd
                     LEFT JOIN range_def rng ON rng.round_def_id = rd.round_def_id
                     GROUP  BY rd.round_def_id, rd.round_name
+                    HAVING arrow_count > 0
                     ORDER  BY rd.round_name
                 "),
                 'archers'           => queryRows($db,
@@ -258,11 +266,7 @@ function handleNamedQuery(PDO $db, string $name): void {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function queryRows(PDO $db, string $sql): array {
-    try {
-        return $db->query($sql)->fetchAll(PDO::FETCH_OBJ);
-    } catch (PDOException $e) {
-        return [['__error' => $e->getMessage()]];
-    }
+    return $db->query($sql)->fetchAll(PDO::FETCH_OBJ);
 }
 
 function queryScalar(PDO $db, string $sql) {
@@ -274,139 +278,4 @@ function queryScalar(PDO $db, string $sql) {
     }
 }
 
-// ── Database initialisation ───────────────────────────────────────────────────
-
-function getDb(string $dbPath, string $sqlPath): PDO {
-    $needInit = !file_exists($dbPath);
-    $db = new PDO('sqlite:' . $dbPath);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    if ($needInit) {
-        try {
-            $mysqlSql  = file_get_contents($sqlPath);
-            $sqliteSql = mysqlDumpToSqlite($mysqlSql);
-            $db->exec($sqliteSql);
-        } catch (Exception $e) {
-            // Remove partially-initialised file so the next request retries cleanly
-            if (file_exists($dbPath)) {
-                unlink($dbPath);
-            }
-            http_response_code(500);
-            echo 'ERROR: Could not initialise database — ' . $e->getMessage();
-            exit();
-        }
-    }
-    return $db;
-}
-
-/**
- * Converts a phpMyAdmin MySQL dump to SQLite-compatible SQL.
- *
- * Handles the specific patterns produced by phpMyAdmin:
- *  - Strips MySQL conditional comments, SET statements, and table options
- *  - Folds ALTER TABLE ADD PRIMARY KEY into each CREATE TABLE definition
- *  - Converts ALTER TABLE ADD KEY to CREATE INDEX statements
- *  - Converts MySQL \' string escaping to SQLite '' escaping
- *  - Skips AUTO_INCREMENT modifiers, COMMENT column attributes, and foreign-key constraints
- */
-function mysqlDumpToSqlite(string $mysqlSql): string {
-    // Normalise line endings (dump may be CRLF on Windows)
-    $mysqlSql = str_replace(["\r\n", "\r"], "\n", $mysqlSql);
-
-    // ── Pass 1: collect PRIMARY KEY and INDEX info from ALTER TABLE ───────────
-    $pks     = [];   // table => pk_column_list  e.g. "`col1`,`col2`"
-    $indexes = [];   // [{table, name, cols}, ...]
-
-    // Each ALTER TABLE block ends with the first bare `;`
-    preg_match_all(
-        '/ALTER\s+TABLE\s+`(\w+)`\s+(.*?);/si',
-        $mysqlSql, $altMatches, PREG_SET_ORDER
-    );
-
-    foreach ($altMatches as $m) {
-        $table    = $m[1];
-        $altBody  = $m[2];
-
-        if (preg_match('/ADD\s+PRIMARY\s+KEY\s*\(([^)]+)\)/i', $altBody, $pk)) {
-            $pks[$table] = $pk[1];
-        }
-
-        preg_match_all(
-            '/ADD(?:\s+UNIQUE)?\s+KEY\s+`?(\w+)`?\s*\(([^)]+)\)/i',
-            $altBody, $idxm, PREG_SET_ORDER
-        );
-        foreach ($idxm as $ix) {
-            $indexes[] = ['table' => $table, 'name' => $ix[1], 'cols' => $ix[2]];
-        }
-    }
-
-    // ── Pass 2: generate SQLite SQL ───────────────────────────────────────────
-    $out = "BEGIN;\n\n";
-
-    // CREATE TABLE — phpMyAdmin always puts ") ENGINE=..." flush against the left margin
-    preg_match_all(
-        '/CREATE\s+TABLE\s+`(\w+)`\s*\(\n(.*?)\n\)\s+ENGINE=[^\n]+;/si',
-        $mysqlSql, $tables, PREG_SET_ORDER
-    );
-
-    foreach ($tables as $t) {
-        $table    = $t[1];
-        $body     = $t[2];
-
-        // Strip COMMENT '...' - SQLite does not support inline column comments
-        $body = preg_replace("/COMMENT\s+'[^']*'/i", '', $body);
-
-        // Strip AUTO_INCREMENT keyword from column defs (INTEGER PRIMARY KEY auto-increments)
-        $body = preg_replace('/\s*AUTO_INCREMENT\b/i', '', $body);
-
-        // Replace enum(...) with TEXT - SQLite rejects string literals inside type parens
-        $body = preg_replace('/\benum\s*\([^)]*\)/i', 'TEXT', $body);
-
-        // Remove UNSIGNED - not a valid SQLite type qualifier
-        $body = preg_replace('/\s+UNSIGNED\b/i', '', $body);
-
-        // Convert MySQL integer types to INTEGER so SQLite single-column PKs
-        // auto-increment correctly (SQLite requires the exact word INTEGER for this)
-        $body = preg_replace('/\bbigint\s*\(\d+\)/i',   'INTEGER', $body);
-        $body = preg_replace('/\bmediumint\s*\(\d+\)/i','INTEGER', $body);
-        $body = preg_replace('/\bsmallint\s*\(\d+\)/i', 'INTEGER', $body);
-        $body = preg_replace('/\btinyint\s*\(\d+\)/i',  'INTEGER', $body);
-        $body = preg_replace('/\bint\s*\(\d+\)/i',      'INTEGER', $body);
-
-        // Convert varchar/char to TEXT
-        $body = preg_replace('/\b(?:var)?char\s*\(\d+\)/i', 'TEXT', $body);
-
-        // Append PRIMARY KEY table constraint (must come after all column defs)
-        if (isset($pks[$table])) {
-            $body = rtrim($body, " \t\n,");
-            $body .= ",\n  PRIMARY KEY (" . $pks[$table] . ")";
-        }
-
-        $out .= "CREATE TABLE IF NOT EXISTS `$table` (\n$body\n);\n\n";
-    }
-
-    // INSERT statements — convert MySQL \'  escaping to SQLite '' escaping
-    preg_match_all(
-        '/INSERT INTO `\w+`\s+\([^)]+\)\s+VALUES\n[^;]+;/si',
-        $mysqlSql, $inserts
-    );
-    foreach ($inserts[0] as $ins) {
-        $ins  = str_replace("\\'", "''", $ins);
-        $out .= $ins . "\n\n";
-    }
-
-    // CREATE INDEX statements (de-duplicated)
-    $seen = [];
-    foreach ($indexes as $ix) {
-        $dedupeKey = $ix['table'] . '.' . $ix['name'];
-        if (isset($seen[$dedupeKey])) {
-            continue;
-        }
-        $seen[$dedupeKey] = true;
-        $idxName = 'idx_' . $ix['table'] . '_' . $ix['name'];
-        $out .= "CREATE INDEX IF NOT EXISTS `$idxName` ON `{$ix['table']}` ({$ix['cols']});\n";
-    }
-
-    $out .= "\nCOMMIT;\n";
-    return $out;
-}
 ?>

@@ -27,6 +27,14 @@ async function fetchData() {
       return
     }
     const data = await res.json()
+    console.log('setup_data:', {
+      rounds: data.rounds?.length,
+      archers: data.archers?.length,
+      divisions: data.divisions?.length,
+      age_classes: data.age_classes?.length,
+      categories: data.categories?.length,
+      equivalent_rounds: data.equivalent_rounds?.length,
+    })
     rounds.value = data.rounds ?? []
     archers.value = data.archers ?? []
     divisions.value = data.divisions ?? []
