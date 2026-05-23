@@ -5,7 +5,7 @@ This use case is to explore the practical applications of databases for software
 I am studying the Game Development major who is also minoring in Web Development so I am familiar with web applications' frontend and backend design. I used VueJS and Vite to create this project.
 I had decided to take this loose task to expand on the foundations that they have given during the Week 10 and 11 work, by allowing not just round and archer choice, but also the class, division, and competitions. 
 The purpose of this use case is meant to be an easy GUI web application for archers' to enter their own details in.
-This task is exclusively for archers and do not include the recorders verifying archer details moving results from staging to permanent tables. 
+This task is exclusively for archers and do not include the recorders verifying archer details moving results from staging to permanent tables. The task is just to implement the basics of inserting data (CRUD) for the users and no other features such as querying the user's details such as scores, personal bests, equivalent rounds, etc. 
 Additionally, this task does not have nay deployment to a sever and is all local (instructions below), and that some liberties were taken in for considering the design of this project while trying to keep the project brief in mind, no tables were changed from the latest design from Confluence. No security measure were added like a proper web application such as a login system. 
 The purpose of this was to show how an archer could responsibly enter there details, so functionality should reflect that, however the design of this application was not considered. 
 
