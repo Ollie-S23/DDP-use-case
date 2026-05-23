@@ -181,49 +181,36 @@ export default {
 
 <template>
   <div class="d-flex justify-content-center pt-4 px-2">
-    <div class="selection-card p-4">
+    <div class="border p-4" style="width: 600px; max-width: 95vw">
       <div v-if="loadError" class="alert alert-danger mb-3" style="font-size: 0.85rem">
         {{ loadError }}
       </div>
-
-      <!-- Step 1: Archer -->
-      <h5 class="text-center fw-bold text-white mb-3">Choose archer</h5>
+      <h5 class="text-center fw-bold mb-3">Choose archer</h5>
       <select v-model="selectedArcherId" class="form-select mb-4">
         <option value="" disabled>-- Select an archer --</option>
         <option v-for="a in archers" :key="a.archer_id" :value="a.archer_id">
           {{ a.name_given }} {{ a.name_surname }}
         </option>
       </select>
-
-      <!-- Archer debug info -->
-      <div v-if="selectedArcher" class="archer-info mb-4">
+      <div v-if="selectedArcher" class="small px-2 py-1 mb-4">
         {{ selectedArcher.name_given }} {{ selectedArcher.name_surname }},
         {{ selectedArcher.gender === 'M' ? 'Male' : 'Female' }},
         {{ selectedArcher.birth_year }} – {{ new Date().getFullYear() - selectedArcher.birth_year }}
       </div>
-
-      <!-- Steps 2–4: shown once archer is selected -->
       <template v-if="selectedArcher">
-        <!-- Round -->
-        <h5 class="text-center fw-bold text-white mb-3">Choose round</h5>
+        <h5 class="text-center fw-bold mb-3">Choose round</h5>
         <select v-model="selectedRoundId" class="form-select mb-4">
           <option value="" disabled>-- Select a round --</option>
           <option v-for="r in validRounds" :key="r.round_def_id" :value="r.round_def_id">
             {{ r.round_name }} ({{ r.arrow_count }} arrows)
           </option>
         </select>
-
-        <!-- Class + Division: shown once round is selected -->
         <template v-if="selectedRoundId">
-          <h5 class="text-center fw-bold text-white mb-3">Choose class &amp; division</h5>
+          <h5 class="text-center fw-bold mb-3">Choose class &amp; division</h5>
           <div class="d-flex gap-2 mb-4">
             <select v-model="selectedAgeClassId" class="form-select">
               <option value="" disabled>-- Class --</option>
-              <option
-                v-for="ac in validAgeClasses"
-                :key="ac.age_class_id"
-                :value="ac.age_class_id"
-              >
+              <option v-for="ac in validAgeClasses" :key="ac.age_class_id" :value="ac.age_class_id">
                 {{ ac.class_name }}
               </option>
             </select>
@@ -234,10 +221,9 @@ export default {
               </option>
             </select>
           </div>
-          <!-- Competition toggle -->
           <div class="d-flex align-items-center gap-2 mb-3">
             <input id="isComp" v-model="isCompetition" type="checkbox" class="form-check-input mt-0" />
-            <label for="isComp" class="text-white mb-0">This is a competition</label>
+            <label for="isComp" class="mb-0">This is a competition</label>
           </div>
           <select v-if="isCompetition" v-model="selectedCompId" class="form-select mb-4">
             <option value="" disabled>-- Select a competition --</option>
@@ -247,44 +233,7 @@ export default {
           </select>
         </template>
       </template>
-
-      <button class="done-btn w-100" :disabled="!canSubmit" @click="submit">Done</button>
+      <button class="btn btn-secondary w-100" :disabled="!canSubmit" @click="submit">Done</button>
     </div>
   </div>
 </template>
-
-<style scoped>
-.selection-card {
-  background-color: #2d8a7a;
-  border-radius: 8px;
-  width: 600px;
-  max-width: 95vw;
-}
-
-.archer-info {
-  background: rgba(0, 0, 0, 0.15);
-  color: #d0f0ea;
-  font-size: 0.8rem;
-  padding: 6px 10px;
-  border-radius: 4px;
-}
-
-.done-btn {
-  background-color: #1a5c50;
-  color: white;
-  font-weight: 500;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.done-btn:hover:not(:disabled) {
-  background-color: #12453d;
-}
-
-.done-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>

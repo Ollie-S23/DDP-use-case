@@ -19,7 +19,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/apis.php': 'http://localhost:8080',
+      '/apis.php': 'http://localhost:80', // this is the port number to change in case XAMPP is not running on 80
     },
   },
 })

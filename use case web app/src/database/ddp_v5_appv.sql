@@ -2014,22 +2014,22 @@ ALTER TABLE `age_class`
 --
 ALTER TABLE `archer_details`
   ADD PRIMARY KEY (`archer_id`),
-  ADD KEY `division_id` (`division_id`);
+  ADD INDEX `division_id` (`division_id`);
 
 --
 -- Indexes for table `arrow_shot`
 --
 ALTER TABLE `arrow_shot`
   ADD PRIMARY KEY (`arrow_id`),
-  ADD KEY `end_id` (`end_id`);
+  ADD INDEX `end_id` (`end_id`);
 
 --
 -- Indexes for table `categories`
 --
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`category_id`),
-  ADD KEY `age_class_id` (`age_class_id`),
-  ADD KEY `division_id` (`division_id`);
+  ADD INDEX `age_class_id` (`age_class_id`),
+  ADD INDEX `division_id` (`division_id`);
 
 --
 -- Indexes for table `comp`
@@ -2048,16 +2048,16 @@ ALTER TABLE `division`
 --
 ALTER TABLE `end_shot`
   ADD PRIMARY KEY (`end_id`),
-  ADD KEY `range_shot_id` (`range_shot_id`);
+  ADD INDEX `range_shot_id` (`range_shot_id`);
 
 --
 -- Indexes for table `equivalent_rounds`
 --
 ALTER TABLE `equivalent_rounds`
   ADD PRIMARY KEY (`equivalent_id`),
-  ADD KEY `base_round_id` (`base_round_id`),
-  ADD KEY `equivalent_round_id` (`equivalent_round_id`),
-  ADD KEY `category_id` (`category_id`);
+  ADD INDEX `base_round_id` (`base_round_id`),
+  ADD INDEX `equivalent_round_id` (`equivalent_round_id`),
+  ADD INDEX `category_id` (`category_id`);
 
 --
 -- Indexes for table `range_def`
@@ -2070,8 +2070,8 @@ ALTER TABLE `range_def`
 --
 ALTER TABLE `range_shot`
   ADD PRIMARY KEY (`range_shot_id`),
-  ADD KEY `round_shots_id` (`round_shots_id`),
-  ADD KEY `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`);
+  ADD INDEX `round_shots_id` (`round_shots_id`),
+  ADD INDEX `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`);
 
 --
 -- Indexes for table `round_def`
@@ -2084,34 +2084,34 @@ ALTER TABLE `round_def`
 --
 ALTER TABLE `round_shot`
   ADD PRIMARY KEY (`round_shots_id`),
-  ADD KEY `round_def_id` (`round_def_id`),
-  ADD KEY `archer_id` (`archer_id`),
-  ADD KEY `category_id` (`category_id`),
-  ADD KEY `comp_id` (`comp_id`);
+  ADD INDEX `round_def_id` (`round_def_id`),
+  ADD INDEX `archer_id` (`archer_id`),
+  ADD INDEX `category_id` (`category_id`),
+  ADD INDEX `comp_id` (`comp_id`);
 
 --
 -- Indexes for table `staging_arrow`
 --
 ALTER TABLE `staging_arrow`
   ADD PRIMARY KEY (`staging_arrow_id`),
-  ADD KEY `staging_end_id` (`staging_end_id`);
+  ADD INDEX `staging_end_id` (`staging_end_id`);
 
 --
 -- Indexes for table `staging_end`
 --
 ALTER TABLE `staging_end`
   ADD PRIMARY KEY (`staging_end_id`),
-  ADD KEY `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`),
-  ADD KEY `staging_id` (`staging_id`);
+  ADD INDEX `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`),
+  ADD INDEX `staging_id` (`staging_id`);
 
 --
 -- Indexes for table `staging_table`
 --
 ALTER TABLE `staging_table`
   ADD PRIMARY KEY (`staged_id`),
-  ADD KEY `archer_id` (`archer_id`),
-  ADD KEY `round_def_id` (`round_def_id`),
-  ADD KEY `division_id` (`division_id`);
+  ADD INDEX `archer_id` (`archer_id`),
+  ADD INDEX `round_def_id` (`round_def_id`),
+  ADD INDEX `division_id` (`division_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
