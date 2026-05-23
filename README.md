@@ -2,7 +2,7 @@
 
 ## USE CASE purpose
 This use case is to explore the practical applications of databases for software and game development majors.
-I am studying the Game Development major who is also minoring in Web Development so I am familiar with web applications' frontend and backend design. 
+I am studying the Game Development major who is also minoring in Web Development so I am familiar with web applications' frontend and backend design. I used VueJS and Vite to create this project.
 I had decided to take this loose task to expand on the foundations that they have given during the Week 10 and 11 work, by allowing not just round and archer choice, but also the class, division, and competitions. 
 The purpose of this use case is meant to be an easy GUI web application for archers' to enter their own details in.
 This task is exclusively for archers and do not include the recorders verifying archer details moving results from staging to permanent tables. 
