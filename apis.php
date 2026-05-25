@@ -285,107 +285,33 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
                 return;
             }
 
+            $comp_val = $comp_id !== null ? $comp_id : 'NULL';
+
             $db->beginTransaction();
             try {
-                if ($is_comp) {
-                    $db->exec("INSERT INTO staging_table (archer_id, round_def_id, division_id, datetime, status)
-                               VALUES ($archer_id, $round_id, $division_id, NOW(), 'pending')");
-                    $staged_id = (int)$db->lastInsertId();
+                $db->exec("INSERT INTO staging_table (archer_id, round_def_id, division_id, comp_id, datetime, status)
+                           VALUES ($archer_id, $round_id, $division_id, $comp_val, NOW(), 'pending')");
+                $staged_id = (int)$db->lastInsertId();
 
-                    foreach ($ranges_data as $rng) {
-                        $dist   = (int)$rng['distance'];
-                        $target = (int)$rng['target_size_cm'];
-                        foreach ($rng['ends'] as $end_num => $arrows) {
-                            $end_number = $end_num + 1;
-                            $db->exec("INSERT INTO staging_end
-                                         (staging_id, range_def_round_id, range_def_distance, range_def_target_size, end_number)
-                                       VALUES ($staged_id, $round_id, $dist, $target, $end_number)");
-                            $staging_end_id = (int)$db->lastInsertId();
-                            foreach ($arrows as $arrow) {
-                                $is_x  = $arrow === 'X' ? 1 : 0;
-                                $score = $arrow === 'X' ? 10 : ($arrow === 'M' ? 0 : (int)$arrow);
-                                $db->exec("INSERT INTO staging_arrow (staging_end_id, score, is_x)
-                                           VALUES ($staging_end_id, $score, $is_x)");
-                            }
+                foreach ($ranges_data as $rng) {
+                    $dist   = (int)$rng['distance'];
+                    $target = (int)$rng['target_size_cm'];
+                    foreach ($rng['ends'] as $end_num => $arrows) {
+                        $end_number = $end_num + 1;
+                        $db->exec("INSERT INTO staging_end
+                                     (staging_id, range_def_round_id, range_def_distance, range_def_target_size, end_number)
+                                   VALUES ($staged_id, $round_id, $dist, $target, $end_number)");
+                        $staging_end_id = (int)$db->lastInsertId();
+                        foreach ($arrows as $arrow) {
+                            $is_x  = $arrow === 'X' ? 1 : 0;
+                            $score = $arrow === 'X' ? 10 : ($arrow === 'M' ? 0 : (int)$arrow);
+                            $db->exec("INSERT INTO staging_arrow (staging_end_id, score, is_x)
+                                       VALUES ($staging_end_id, $score, $is_x)");
                         }
                     }
-                    $db->commit();
-                    echo json_encode(['ok' => true, 'staged_id' => $staged_id]);
-
-                } else {
-                    // Resolve category_id using 3-case equivalent-rounds logic
-                    $caseA = (int)queryScalar($db,
-                        "SELECT COUNT(*) FROM equivalent_rounds WHERE equivalent_round_id = $round_id"
-                    ) > 0;
-
-                    if ($caseA) {
-                        $catRow = $db->query("
-                            SELECT c.category_id FROM categories c
-                            JOIN equivalent_rounds er ON er.category_id = c.category_id
-                            WHERE er.equivalent_round_id = $round_id
-                              AND c.age_class_id = $age_class_id AND c.division_id = $division_id
-                            LIMIT 1
-                        ")->fetch(PDO::FETCH_OBJ);
-                    } else {
-                        $caseB = (int)queryScalar($db,
-                            "SELECT COUNT(*) FROM equivalent_rounds WHERE base_round_id = $round_id"
-                        ) > 0;
-                        if ($caseB) {
-                            $catRow = $db->query("
-                                SELECT c.category_id FROM categories c
-                                WHERE c.age_class_id = $age_class_id AND c.division_id = $division_id
-                                  AND c.category_id NOT IN (SELECT category_id FROM equivalent_rounds)
-                                LIMIT 1
-                            ")->fetch(PDO::FETCH_OBJ);
-                        } else {
-                            $catRow = $db->query("
-                                SELECT category_id FROM categories
-                                WHERE age_class_id = $age_class_id AND division_id = $division_id
-                                LIMIT 1
-                            ")->fetch(PDO::FETCH_OBJ);
-                        }
-                    }
-
-                    if (!$catRow) {
-                        $db->rollBack();
-                        http_response_code(400);
-                        echo json_encode(['error' => 'No matching category found']);
-                        return;
-                    }
-                    $category_id = (int)$catRow->category_id;
-                    $today       = date('Y-m-d');
-                    $comp_val    = $comp_id !== null ? $comp_id : 'NULL';
-
-                    $db->exec("INSERT INTO round_shot
-                                 (round_def_id, archer_id, category_id, comp_id, placement, round_shots_date)
-                               VALUES ($round_id, $archer_id, $category_id, $comp_val, NULL, '$today')");
-                    $round_shots_id = (int)$db->lastInsertId();
-
-                    foreach ($ranges_data as $rng) {
-                        $dist   = (int)$rng['distance'];
-                        $target = (int)$rng['target_size_cm'];
-                        $db->exec("INSERT INTO range_shot
-                                     (round_shots_id, range_def_round_id, range_def_distance, range_def_target_size)
-                                   VALUES ($round_shots_id, $round_id, $dist, $target)");
-                        $range_shot_id = (int)$db->lastInsertId();
-
-                        foreach ($rng['ends'] as $end_num => $arrows) {
-                            $end_number = $end_num + 1;
-                            $db->exec("INSERT INTO end_shot (range_shot_id, end_number)
-                                       VALUES ($range_shot_id, $end_number)");
-                            $end_id = (int)$db->lastInsertId();
-
-                            foreach ($arrows as $arrow) {
-                                $is_x  = $arrow === 'X' ? 1 : 0;
-                                $score = $arrow === 'X' ? 10 : ($arrow === 'M' ? 0 : (int)$arrow);
-                                $db->exec("INSERT INTO arrow_shot (end_id, score, isX_score, is_approved)
-                                           VALUES ($end_id, $score, $is_x, 0)");
-                            }
-                        }
-                    }
-                    $db->commit();
-                    echo json_encode(['ok' => true, 'round_shots_id' => $round_shots_id]);
                 }
+                $db->commit();
+                echo json_encode(['ok' => true, 'staged_id' => $staged_id]);
             } catch (PDOException $e) {
                 $db->rollBack();
                 http_response_code(500);

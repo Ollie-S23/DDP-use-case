@@ -274,7 +274,7 @@ export default {
             <p class="text-center small mt-2">
               {{ isComp
                 ? 'Your competition entry is pending review by a verified recorder.'
-                : 'Your practice round has been saved to your profile.' }}
+                : 'Your practice round  is pending review by a verified recorder.' }}
             </p>
             <button class="btn btn-secondary w-100 mt-3" @click="$router.push('/')">
               Close
@@ -338,7 +338,7 @@ export default {
                 As a competition has been selected, this request will hold pending until a verified recorder reviews the request.
               </template>
               <template v-else>
-                A competition was not applied. All information will be added to your profile. You are responsible for the correct details. A verified recorder is not responsible but may in the future alter your details.
+                A competition was not applied, this request will hold pending until a verified recorder reviews the request.
               </template>
             </div>
 

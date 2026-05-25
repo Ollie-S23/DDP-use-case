@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 09, 2026 at 07:50 AM
+-- Generation Time: May 25, 2026 at 09:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ddp_v5_draft3`
+-- Database: `ddp_v5_appv`
 --
 
 -- --------------------------------------------------------
@@ -188,159 +188,302 @@ CREATE TABLE `arrow_shot` (
   `arrow_id` int(11) NOT NULL,
   `end_id` int(11) NOT NULL,
   `score` tinyint(3) UNSIGNED NOT NULL COMMENT 'Arrow score 0–10',
-  `isX_score` tinyint(1) NOT NULL DEFAULT 0,
-  `is_approved` tinyint(1) NOT NULL DEFAULT 0
+  `isX_score` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `arrow_shot`
 --
 
-INSERT INTO `arrow_shot` (`arrow_id`, `end_id`, `score`, `isX_score`, `is_approved`) VALUES
-(1, 1, 10, 1, 0),
-(2, 1, 10, 0, 0),
-(3, 1, 9, 0, 0),
-(4, 1, 8, 0, 0),
-(5, 1, 7, 0, 0),
-(6, 1, 3, 0, 0),
-(7, 2, 10, 1, 0),
-(8, 2, 10, 0, 0),
-(9, 2, 9, 0, 0),
-(10, 2, 7, 0, 0),
-(11, 2, 6, 0, 0),
-(12, 2, 5, 0, 0),
-(13, 3, 10, 1, 0),
-(14, 3, 9, 0, 0),
-(15, 3, 8, 0, 0),
-(16, 3, 7, 0, 0),
-(17, 3, 5, 0, 0),
-(18, 3, 4, 0, 0),
-(19, 4, 10, 1, 0),
-(20, 4, 10, 0, 0),
-(21, 4, 9, 0, 0),
-(22, 4, 8, 0, 0),
-(23, 4, 6, 0, 0),
-(24, 4, 3, 0, 0),
-(25, 5, 10, 1, 0),
-(26, 5, 10, 0, 0),
-(27, 5, 9, 0, 0),
-(28, 5, 8, 0, 0),
-(29, 5, 7, 0, 0),
-(30, 5, 4, 0, 0),
-(31, 6, 10, 0, 0),
-(32, 6, 8, 0, 0),
-(33, 6, 7, 0, 0),
-(34, 6, 6, 0, 0),
-(35, 6, 5, 0, 0),
-(36, 6, 3, 0, 0),
-(37, 7, 10, 1, 0),
-(38, 7, 10, 0, 0),
-(39, 7, 9, 0, 0),
-(40, 7, 8, 0, 0),
-(41, 7, 7, 0, 0),
-(42, 7, 4, 0, 0),
-(43, 8, 10, 1, 0),
-(44, 8, 10, 0, 0),
-(45, 8, 9, 0, 0),
-(46, 8, 7, 0, 0),
-(47, 8, 5, 0, 0),
-(48, 8, 3, 0, 0),
-(49, 9, 10, 1, 0),
-(50, 9, 10, 0, 0),
-(51, 9, 9, 0, 0),
-(52, 9, 8, 0, 0),
-(53, 9, 7, 0, 0),
-(54, 9, 6, 0, 0),
-(55, 10, 10, 1, 0),
-(56, 10, 9, 0, 0),
-(57, 10, 8, 0, 0),
-(58, 10, 7, 0, 0),
-(59, 10, 5, 0, 0),
-(60, 10, 4, 0, 0),
-(61, 11, 10, 1, 0),
-(62, 11, 10, 0, 0),
-(63, 11, 9, 0, 0),
-(64, 11, 8, 0, 0),
-(65, 11, 6, 0, 0),
-(66, 11, 3, 0, 0),
-(67, 12, 10, 1, 0),
-(68, 12, 10, 0, 0),
-(69, 12, 8, 0, 0),
-(70, 12, 7, 0, 0),
-(71, 12, 5, 0, 0),
-(72, 12, 4, 0, 0),
-(73, 13, 10, 1, 0),
-(74, 13, 10, 0, 0),
-(75, 13, 9, 0, 0),
-(76, 13, 8, 0, 0),
-(77, 13, 7, 0, 0),
-(78, 13, 3, 0, 0),
-(79, 14, 10, 0, 0),
-(80, 14, 9, 0, 0),
-(81, 14, 8, 0, 0),
-(82, 14, 7, 0, 0),
-(83, 14, 6, 0, 0),
-(84, 14, 4, 0, 0),
-(85, 15, 10, 1, 0),
-(86, 15, 10, 0, 0),
-(87, 15, 9, 0, 0),
-(88, 15, 7, 0, 0),
-(89, 15, 5, 0, 0),
-(90, 15, 3, 0, 0),
-(91, 16, 10, 1, 0),
-(92, 16, 10, 0, 0),
-(93, 16, 9, 0, 0),
-(94, 16, 8, 0, 0),
-(95, 16, 7, 0, 0),
-(96, 16, 6, 0, 0),
-(97, 17, 10, 1, 0),
-(98, 17, 9, 0, 0),
-(99, 17, 8, 0, 0),
-(100, 17, 7, 0, 0),
-(101, 17, 5, 0, 0),
-(102, 17, 4, 0, 0),
-(103, 18, 10, 1, 0),
-(104, 18, 10, 0, 0),
-(105, 18, 9, 0, 0),
-(106, 18, 8, 0, 0),
-(107, 18, 6, 0, 0),
-(108, 18, 3, 0, 0),
-(109, 19, 10, 1, 0),
-(110, 19, 10, 0, 0),
-(111, 19, 8, 0, 0),
-(112, 19, 7, 0, 0),
-(113, 19, 5, 0, 0),
-(114, 19, 4, 0, 0),
-(115, 20, 10, 1, 0),
-(116, 20, 10, 0, 0),
-(117, 20, 9, 0, 0),
-(118, 20, 8, 0, 0),
-(119, 20, 7, 0, 0),
-(120, 20, 3, 0, 0),
-(121, 21, 10, 0, 0),
-(122, 21, 9, 0, 0),
-(123, 21, 8, 0, 0),
-(124, 21, 7, 0, 0),
-(125, 21, 6, 0, 0),
-(126, 21, 4, 0, 0),
-(127, 22, 10, 1, 0),
-(128, 22, 10, 0, 0),
-(129, 22, 9, 0, 0),
-(130, 22, 7, 0, 0),
-(131, 22, 5, 0, 0),
-(132, 22, 3, 0, 0),
-(133, 23, 10, 1, 0),
-(134, 23, 10, 0, 0),
-(135, 23, 9, 0, 0),
-(136, 23, 8, 0, 0),
-(137, 23, 7, 0, 0),
-(138, 23, 6, 0, 0),
-(139, 24, 10, 1, 0),
-(140, 24, 9, 0, 0),
-(141, 24, 8, 0, 0),
-(142, 24, 5, 0, 0),
-(143, 24, 4, 0, 0),
-(144, 24, 0, 0, 0);
+INSERT INTO `arrow_shot` (`arrow_id`, `end_id`, `score`, `isX_score`) VALUES
+(1, 1, 10, 1),
+(2, 1, 10, 0),
+(3, 1, 9, 0),
+(4, 1, 8, 0),
+(5, 1, 7, 0),
+(6, 1, 3, 0),
+(7, 2, 10, 1),
+(8, 2, 10, 0),
+(9, 2, 9, 0),
+(10, 2, 7, 0),
+(11, 2, 6, 0),
+(12, 2, 5, 0),
+(13, 3, 10, 1),
+(14, 3, 9, 0),
+(15, 3, 8, 0),
+(16, 3, 7, 0),
+(17, 3, 5, 0),
+(18, 3, 4, 0),
+(19, 4, 10, 1),
+(20, 4, 10, 0),
+(21, 4, 9, 0),
+(22, 4, 8, 0),
+(23, 4, 6, 0),
+(24, 4, 3, 0),
+(25, 5, 10, 1),
+(26, 5, 10, 0),
+(27, 5, 9, 0),
+(28, 5, 8, 0),
+(29, 5, 7, 0),
+(30, 5, 4, 0),
+(31, 6, 10, 0),
+(32, 6, 8, 0),
+(33, 6, 7, 0),
+(34, 6, 6, 0),
+(35, 6, 5, 0),
+(36, 6, 3, 0),
+(37, 7, 10, 1),
+(38, 7, 10, 0),
+(39, 7, 9, 0),
+(40, 7, 8, 0),
+(41, 7, 7, 0),
+(42, 7, 4, 0),
+(43, 8, 10, 1),
+(44, 8, 10, 0),
+(45, 8, 9, 0),
+(46, 8, 7, 0),
+(47, 8, 5, 0),
+(48, 8, 3, 0),
+(49, 9, 10, 1),
+(50, 9, 10, 0),
+(51, 9, 9, 0),
+(52, 9, 8, 0),
+(53, 9, 7, 0),
+(54, 9, 6, 0),
+(55, 10, 10, 1),
+(56, 10, 9, 0),
+(57, 10, 8, 0),
+(58, 10, 7, 0),
+(59, 10, 5, 0),
+(60, 10, 4, 0),
+(61, 11, 10, 1),
+(62, 11, 10, 0),
+(63, 11, 9, 0),
+(64, 11, 8, 0),
+(65, 11, 6, 0),
+(66, 11, 3, 0),
+(67, 12, 10, 1),
+(68, 12, 10, 0),
+(69, 12, 8, 0),
+(70, 12, 7, 0),
+(71, 12, 5, 0),
+(72, 12, 4, 0),
+(73, 13, 10, 1),
+(74, 13, 10, 0),
+(75, 13, 9, 0),
+(76, 13, 8, 0),
+(77, 13, 7, 0),
+(78, 13, 3, 0),
+(79, 14, 10, 0),
+(80, 14, 9, 0),
+(81, 14, 8, 0),
+(82, 14, 7, 0),
+(83, 14, 6, 0),
+(84, 14, 4, 0),
+(85, 15, 10, 1),
+(86, 15, 10, 0),
+(87, 15, 9, 0),
+(88, 15, 7, 0),
+(89, 15, 5, 0),
+(90, 15, 3, 0),
+(91, 16, 10, 1),
+(92, 16, 10, 0),
+(93, 16, 9, 0),
+(94, 16, 8, 0),
+(95, 16, 7, 0),
+(96, 16, 6, 0),
+(97, 17, 10, 1),
+(98, 17, 9, 0),
+(99, 17, 8, 0),
+(100, 17, 7, 0),
+(101, 17, 5, 0),
+(102, 17, 4, 0),
+(103, 18, 10, 1),
+(104, 18, 10, 0),
+(105, 18, 9, 0),
+(106, 18, 8, 0),
+(107, 18, 6, 0),
+(108, 18, 3, 0),
+(109, 19, 10, 1),
+(110, 19, 10, 0),
+(111, 19, 8, 0),
+(112, 19, 7, 0),
+(113, 19, 5, 0),
+(114, 19, 4, 0),
+(115, 20, 10, 1),
+(116, 20, 10, 0),
+(117, 20, 9, 0),
+(118, 20, 8, 0),
+(119, 20, 7, 0),
+(120, 20, 3, 0),
+(121, 21, 10, 0),
+(122, 21, 9, 0),
+(123, 21, 8, 0),
+(124, 21, 7, 0),
+(125, 21, 6, 0),
+(126, 21, 4, 0),
+(127, 22, 10, 1),
+(128, 22, 10, 0),
+(129, 22, 9, 0),
+(130, 22, 7, 0),
+(131, 22, 5, 0),
+(132, 22, 3, 0),
+(133, 23, 10, 1),
+(134, 23, 10, 0),
+(135, 23, 9, 0),
+(136, 23, 8, 0),
+(137, 23, 7, 0),
+(138, 23, 6, 0),
+(139, 24, 10, 1),
+(140, 24, 9, 0),
+(141, 24, 8, 0),
+(142, 24, 5, 0),
+(143, 24, 4, 0),
+(144, 24, 0, 0),
+(145, 25, 10, 1),
+(146, 25, 10, 1),
+(147, 25, 10, 1),
+(148, 25, 10, 1),
+(149, 25, 10, 1),
+(150, 25, 10, 1),
+(151, 26, 10, 1),
+(152, 26, 10, 1),
+(153, 26, 10, 1),
+(154, 26, 10, 1),
+(155, 26, 10, 1),
+(156, 26, 10, 1),
+(157, 27, 10, 1),
+(158, 27, 10, 1),
+(159, 27, 10, 1),
+(160, 27, 10, 1),
+(161, 27, 10, 1),
+(162, 27, 10, 1),
+(163, 28, 10, 1),
+(164, 28, 10, 1),
+(165, 28, 10, 1),
+(166, 28, 10, 1),
+(167, 28, 10, 1),
+(168, 28, 10, 1),
+(169, 29, 10, 1),
+(170, 29, 10, 1),
+(171, 29, 10, 1),
+(172, 29, 10, 1),
+(173, 29, 10, 1),
+(174, 29, 10, 1),
+(175, 30, 10, 1),
+(176, 30, 10, 1),
+(177, 30, 10, 1),
+(178, 30, 10, 1),
+(179, 30, 10, 1),
+(180, 30, 10, 1),
+(181, 31, 10, 1),
+(182, 31, 10, 1),
+(183, 31, 10, 1),
+(184, 31, 10, 1),
+(185, 31, 10, 1),
+(186, 31, 10, 1),
+(187, 32, 10, 1),
+(188, 32, 10, 1),
+(189, 32, 10, 1),
+(190, 32, 10, 1),
+(191, 32, 10, 1),
+(192, 32, 10, 1),
+(193, 33, 10, 1),
+(194, 33, 10, 1),
+(195, 33, 10, 1),
+(196, 33, 10, 1),
+(197, 33, 10, 1),
+(198, 33, 10, 1),
+(199, 34, 10, 1),
+(200, 34, 10, 1),
+(201, 34, 10, 1),
+(202, 34, 10, 1),
+(203, 34, 10, 1),
+(204, 34, 10, 1),
+(205, 35, 10, 1),
+(206, 35, 10, 1),
+(207, 35, 10, 1),
+(208, 35, 10, 1),
+(209, 35, 10, 1),
+(210, 35, 10, 1),
+(211, 36, 10, 1),
+(212, 36, 10, 1),
+(213, 36, 10, 1),
+(214, 36, 10, 1),
+(215, 36, 10, 1),
+(216, 36, 10, 1),
+(217, 37, 10, 1),
+(218, 37, 10, 1),
+(219, 37, 10, 1),
+(220, 37, 10, 1),
+(221, 37, 10, 1),
+(222, 37, 10, 1),
+(223, 38, 10, 1),
+(224, 38, 10, 1),
+(225, 38, 10, 1),
+(226, 38, 10, 1),
+(227, 38, 10, 1),
+(228, 38, 10, 1),
+(229, 39, 10, 1),
+(230, 39, 10, 1),
+(231, 39, 10, 1),
+(232, 39, 10, 1),
+(233, 39, 10, 1),
+(234, 39, 10, 1),
+(235, 40, 10, 1),
+(236, 40, 10, 1),
+(237, 40, 10, 1),
+(238, 40, 10, 1),
+(239, 40, 10, 1),
+(240, 40, 10, 1),
+(241, 41, 10, 1),
+(242, 41, 10, 1),
+(243, 41, 10, 1),
+(244, 41, 10, 1),
+(245, 41, 10, 1),
+(246, 41, 10, 1),
+(247, 42, 10, 1),
+(248, 42, 10, 1),
+(249, 42, 10, 1),
+(250, 42, 10, 1),
+(251, 42, 10, 1),
+(252, 42, 10, 1),
+(253, 43, 10, 1),
+(254, 43, 10, 1),
+(255, 43, 10, 1),
+(256, 43, 10, 1),
+(257, 43, 10, 1),
+(258, 43, 10, 1),
+(259, 44, 10, 1),
+(260, 44, 10, 1),
+(261, 44, 10, 1),
+(262, 44, 10, 1),
+(263, 44, 10, 1),
+(264, 44, 10, 1),
+(265, 45, 10, 1),
+(266, 45, 10, 1),
+(267, 45, 10, 1),
+(268, 45, 10, 1),
+(269, 45, 10, 1),
+(270, 45, 10, 1),
+(271, 46, 10, 1),
+(272, 46, 10, 1),
+(273, 46, 10, 1),
+(274, 46, 10, 1),
+(275, 46, 10, 1),
+(276, 46, 10, 1),
+(277, 47, 10, 1),
+(278, 47, 10, 1),
+(279, 47, 10, 1),
+(280, 47, 10, 1),
+(281, 47, 10, 1),
+(282, 47, 10, 1),
+(283, 48, 10, 1),
+(284, 48, 10, 1),
+(285, 48, 10, 1),
+(286, 48, 10, 1),
+(287, 48, 10, 1),
+(288, 48, 10, 1);
 
 -- --------------------------------------------------------
 
@@ -450,14 +593,14 @@ CREATE TABLE `comp` (
   `comp_id` int(11) NOT NULL,
   `comp_name` varchar(100) DEFAULT NULL,
   `comp_date` date DEFAULT NULL,
-  `is_comp` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'True = official competition'
+  `is_champ` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `comp`
 --
 
-INSERT INTO `comp` (`comp_id`, `comp_name`, `comp_date`, `is_comp`) VALUES
+INSERT INTO `comp` (`comp_id`, `comp_name`, `comp_date`, `is_champ`) VALUES
 (1, 'Michael Kors Holdings Limited', '2025-12-23', 0),
 (2, 'China Mobile (Hong Kong) Ltd.', '2025-06-01', 1),
 (3, 'Carlisle Companies Incorporated', '2025-06-24', 1),
@@ -1429,7 +1572,7 @@ INSERT INTO `comp` (`comp_id`, `comp_name`, `comp_date`, `is_comp`) VALUES
 (969, 'United Therapeutics Corporation', '2026-04-18', 1),
 (970, 'Plantronics, Inc.', '2026-04-11', 1),
 (971, 'Newmont Mining Corporation', '2025-01-25', 1);
-INSERT INTO `comp` (`comp_id`, `comp_name`, `comp_date`, `is_comp`) VALUES
+INSERT INTO `comp` (`comp_id`, `comp_name`, `comp_date`, `is_champ`) VALUES
 (972, 'Lindblad Expeditions Holdings Inc. ', '2025-07-08', 0),
 (973, 'Navistar International Corporation', '2025-08-02', 1),
 (974, 'Neovasc Inc.', '2025-07-21', 1),
@@ -1523,7 +1666,31 @@ INSERT INTO `end_shot` (`end_id`, `range_shot_id`, `end_number`) VALUES
 (21, 4, 3),
 (22, 4, 4),
 (23, 4, 5),
-(24, 4, 6);
+(24, 4, 6),
+(25, 5, 1),
+(26, 5, 2),
+(27, 5, 3),
+(28, 5, 4),
+(29, 5, 5),
+(30, 5, 6),
+(31, 6, 1),
+(32, 6, 2),
+(33, 6, 3),
+(34, 6, 4),
+(35, 6, 5),
+(36, 6, 6),
+(37, 7, 1),
+(38, 7, 2),
+(39, 7, 3),
+(40, 7, 4),
+(41, 7, 5),
+(42, 7, 6),
+(43, 8, 1),
+(44, 8, 2),
+(45, 8, 3),
+(46, 8, 4),
+(47, 8, 5),
+(48, 8, 6);
 
 -- --------------------------------------------------------
 
@@ -1713,7 +1880,11 @@ INSERT INTO `range_shot` (`range_shot_id`, `round_shots_id`, `range_def_round_id
 (1, 1, 1, 90, 122),
 (2, 1, 1, 70, 122),
 (3, 1, 1, 50, 80),
-(4, 1, 1, 30, 80);
+(4, 1, 1, 30, 80),
+(5, 2, 1, 90, 122),
+(6, 2, 1, 70, 122),
+(7, 2, 1, 50, 80),
+(8, 2, 1, 30, 80);
 
 -- --------------------------------------------------------
 
@@ -1758,15 +1929,16 @@ CREATE TABLE `round_shot` (
   `category_id` int(11) NOT NULL,
   `comp_id` int(11) DEFAULT NULL COMMENT 'NULL = practice round',
   `placement` tinyint(3) UNSIGNED DEFAULT NULL,
-  `round_shots_date` date NOT NULL
+  `round_shots_datetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `round_shot`
 --
 
-INSERT INTO `round_shot` (`round_shots_id`, `round_def_id`, `archer_id`, `category_id`, `comp_id`, `placement`, `round_shots_date`) VALUES
-(1, 1, 5, 46, 1001, NULL, '2026-03-09');
+INSERT INTO `round_shot` (`round_shots_id`, `round_def_id`, `archer_id`, `category_id`, `comp_id`, `placement`, `round_shots_datetime`) VALUES
+(1, 1, 5, 46, 1001, NULL, '2026-03-09 00:00:00'),
+(2, 1, 5, 7, NULL, NULL, '2026-05-18 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -1929,7 +2101,271 @@ INSERT INTO `staging_arrow` (`staging_arrow_id`, `staging_end_id`, `score`, `is_
 (141, 24, 9, 0),
 (142, 24, 8, 0),
 (143, 24, 7, 0),
-(144, 24, 4, 0);
+(144, 24, 4, 0),
+(145, 25, 10, 0),
+(146, 25, 10, 0),
+(147, 25, 9, 0),
+(148, 25, 8, 0),
+(149, 25, 4, 0),
+(150, 25, 8, 0),
+(151, 26, 10, 0),
+(152, 26, 9, 0),
+(153, 26, 6, 0),
+(154, 26, 9, 0),
+(155, 26, 8, 0),
+(156, 26, 4, 0),
+(157, 27, 7, 0),
+(158, 27, 5, 0),
+(159, 27, 4, 0),
+(160, 27, 2, 0),
+(161, 27, 10, 1),
+(162, 27, 0, 0),
+(163, 28, 6, 0),
+(164, 28, 9, 0),
+(165, 28, 8, 0),
+(166, 28, 6, 0),
+(167, 28, 3, 0),
+(168, 28, 7, 0),
+(169, 29, 9, 0),
+(170, 29, 9, 0),
+(171, 29, 4, 0),
+(172, 29, 9, 0),
+(173, 29, 6, 0),
+(174, 29, 10, 1),
+(175, 30, 2, 0),
+(176, 30, 7, 0),
+(177, 30, 1, 0),
+(178, 30, 7, 0),
+(179, 30, 8, 0),
+(180, 30, 10, 1),
+(181, 31, 0, 0),
+(182, 31, 9, 0),
+(183, 31, 10, 0),
+(184, 31, 6, 0),
+(185, 31, 1, 0),
+(186, 31, 3, 0),
+(187, 32, 4, 0),
+(188, 32, 8, 0),
+(189, 32, 9, 0),
+(190, 32, 9, 0),
+(191, 32, 4, 0),
+(192, 32, 8, 0),
+(193, 33, 7, 0),
+(194, 33, 6, 0),
+(195, 33, 5, 0),
+(196, 33, 10, 0),
+(197, 33, 8, 0),
+(198, 33, 0, 0),
+(199, 34, 6, 0),
+(200, 34, 10, 0),
+(201, 34, 5, 0),
+(202, 34, 4, 0),
+(203, 34, 3, 0),
+(204, 34, 6, 0),
+(205, 35, 10, 0),
+(206, 35, 6, 0),
+(207, 35, 9, 0),
+(208, 35, 0, 0),
+(209, 35, 10, 0),
+(210, 35, 5, 0),
+(211, 36, 1, 0),
+(212, 36, 6, 0),
+(213, 36, 5, 0),
+(214, 36, 10, 0),
+(215, 36, 10, 1),
+(216, 36, 0, 0),
+(217, 37, 10, 0),
+(218, 37, 10, 0),
+(219, 37, 8, 0),
+(220, 37, 7, 0),
+(221, 37, 4, 0),
+(222, 37, 1, 0),
+(223, 38, 6, 0),
+(224, 38, 10, 0),
+(225, 38, 9, 0),
+(226, 38, 2, 0),
+(227, 38, 0, 0),
+(228, 38, 9, 0),
+(229, 39, 7, 0),
+(230, 39, 10, 0),
+(231, 39, 2, 0),
+(232, 39, 10, 1),
+(233, 39, 5, 0),
+(234, 39, 10, 0),
+(235, 40, 7, 0),
+(236, 40, 10, 0),
+(237, 40, 1, 0),
+(238, 40, 5, 0),
+(239, 40, 5, 0),
+(240, 40, 6, 0),
+(241, 41, 2, 0),
+(242, 41, 2, 0),
+(243, 41, 7, 0),
+(244, 41, 10, 1),
+(245, 41, 5, 0),
+(246, 41, 1, 0),
+(247, 42, 0, 0),
+(248, 42, 0, 0),
+(249, 42, 0, 0),
+(250, 42, 10, 1),
+(251, 42, 10, 1),
+(252, 42, 10, 1),
+(253, 43, 10, 1),
+(254, 43, 10, 0),
+(255, 43, 9, 0),
+(256, 43, 8, 0),
+(257, 43, 8, 0),
+(258, 43, 7, 0),
+(259, 44, 7, 0),
+(260, 44, 6, 0),
+(261, 44, 5, 0),
+(262, 44, 4, 0),
+(263, 44, 3, 0),
+(264, 44, 7, 0),
+(265, 45, 10, 0),
+(266, 45, 10, 1),
+(267, 45, 9, 0),
+(268, 45, 8, 0),
+(269, 45, 5, 0),
+(270, 45, 4, 0),
+(271, 46, 10, 0),
+(272, 46, 7, 0),
+(273, 46, 9, 0),
+(274, 46, 6, 0),
+(275, 46, 8, 0),
+(276, 46, 10, 0),
+(277, 47, 7, 0),
+(278, 47, 6, 0),
+(279, 47, 10, 1),
+(280, 47, 2, 0),
+(281, 47, 7, 0),
+(282, 47, 9, 0),
+(283, 48, 6, 0),
+(284, 48, 10, 1),
+(285, 48, 6, 0),
+(286, 48, 3, 0),
+(287, 48, 7, 0),
+(288, 48, 10, 0),
+(289, 49, 10, 1),
+(290, 49, 2, 0),
+(291, 49, 9, 0),
+(292, 49, 6, 0),
+(293, 49, 4, 0),
+(294, 49, 8, 0),
+(295, 50, 7, 0),
+(296, 50, 7, 0),
+(297, 50, 6, 0),
+(298, 50, 5, 0),
+(299, 50, 4, 0),
+(300, 50, 9, 0),
+(301, 51, 7, 0),
+(302, 51, 3, 0),
+(303, 51, 7, 0),
+(304, 51, 6, 0),
+(305, 51, 1, 0),
+(306, 51, 3, 0),
+(307, 52, 7, 0),
+(308, 52, 3, 0),
+(309, 52, 4, 0),
+(310, 52, 7, 0),
+(311, 52, 9, 0),
+(312, 52, 3, 0),
+(313, 53, 9, 0),
+(314, 53, 10, 0),
+(315, 53, 8, 0),
+(316, 53, 6, 0),
+(317, 53, 3, 0),
+(318, 53, 9, 0),
+(319, 54, 10, 0),
+(320, 54, 9, 0),
+(321, 54, 6, 0),
+(322, 54, 10, 1),
+(323, 54, 3, 0),
+(324, 54, 9, 0),
+(325, 55, 6, 0),
+(326, 55, 7, 0),
+(327, 55, 10, 1),
+(328, 55, 9, 0),
+(329, 55, 8, 0),
+(330, 55, 3, 0),
+(331, 56, 7, 0),
+(332, 56, 6, 0),
+(333, 56, 2, 0),
+(334, 56, 7, 0),
+(335, 56, 3, 0),
+(336, 56, 5, 0),
+(337, 57, 3, 0),
+(338, 57, 2, 0),
+(339, 57, 6, 0),
+(340, 57, 0, 0),
+(341, 57, 9, 0),
+(342, 57, 7, 0),
+(343, 58, 7, 0),
+(344, 58, 5, 0),
+(345, 58, 2, 0),
+(346, 58, 1, 0),
+(347, 58, 7, 0),
+(348, 58, 3, 0),
+(349, 59, 9, 0),
+(350, 59, 7, 0),
+(351, 59, 8, 0),
+(352, 59, 2, 0),
+(353, 59, 10, 0),
+(354, 59, 7, 0),
+(355, 60, 10, 1),
+(356, 60, 8, 0),
+(357, 60, 2, 0),
+(358, 60, 10, 0),
+(359, 60, 10, 0),
+(360, 60, 3, 0),
+(361, 61, 3, 0),
+(362, 61, 9, 0),
+(363, 61, 4, 0),
+(364, 61, 6, 0),
+(365, 61, 9, 0),
+(366, 61, 2, 0),
+(367, 62, 10, 0),
+(368, 62, 5, 0),
+(369, 62, 7, 0),
+(370, 62, 2, 0),
+(371, 62, 3, 0),
+(372, 62, 6, 0),
+(373, 63, 3, 0),
+(374, 63, 5, 0),
+(375, 63, 6, 0),
+(376, 63, 9, 0),
+(377, 63, 10, 0),
+(378, 63, 7, 0),
+(379, 64, 10, 1),
+(380, 64, 10, 0),
+(381, 64, 9, 0),
+(382, 64, 8, 0),
+(383, 64, 6, 0),
+(384, 64, 7, 0),
+(385, 65, 7, 0),
+(386, 65, 5, 0),
+(387, 65, 3, 0),
+(388, 65, 8, 0),
+(389, 65, 9, 0),
+(390, 65, 3, 0),
+(391, 66, 7, 0),
+(392, 66, 10, 0),
+(393, 66, 2, 0),
+(394, 66, 10, 1),
+(395, 66, 6, 0),
+(396, 66, 7, 0),
+(397, 67, 2, 0),
+(398, 67, 7, 0),
+(399, 67, 10, 0),
+(400, 67, 3, 0),
+(401, 67, 4, 0),
+(402, 67, 10, 0),
+(403, 68, 3, 0),
+(404, 68, 1, 0),
+(405, 68, 7, 0),
+(406, 68, 7, 0),
+(407, 68, 10, 1),
+(408, 68, 10, 1);
 
 -- --------------------------------------------------------
 
@@ -1974,7 +2410,51 @@ INSERT INTO `staging_end` (`staging_end_id`, `staging_id`, `range_def_round_id`,
 (21, 1, 2, 30, 80, 3),
 (22, 1, 2, 30, 80, 4),
 (23, 1, 2, 30, 80, 5),
-(24, 1, 2, 30, 80, 6);
+(24, 1, 2, 30, 80, 6),
+(25, 3, 5, 40, 122, 1),
+(26, 3, 5, 40, 122, 2),
+(27, 3, 5, 40, 122, 3),
+(28, 3, 5, 40, 122, 4),
+(29, 3, 5, 40, 122, 5),
+(30, 3, 5, 40, 122, 6),
+(31, 3, 5, 30, 122, 1),
+(32, 3, 5, 30, 122, 2),
+(33, 3, 5, 30, 122, 3),
+(34, 3, 5, 30, 122, 4),
+(35, 3, 5, 30, 122, 5),
+(36, 3, 5, 30, 122, 6),
+(37, 3, 5, 30, 80, 1),
+(38, 3, 5, 30, 80, 2),
+(39, 3, 5, 30, 80, 3),
+(40, 3, 5, 30, 80, 4),
+(41, 3, 5, 30, 80, 5),
+(42, 3, 5, 30, 80, 6),
+(43, 3, 5, 20, 80, 1),
+(44, 3, 5, 20, 80, 2),
+(45, 3, 5, 20, 80, 3),
+(46, 3, 5, 20, 80, 4),
+(47, 3, 5, 20, 80, 5),
+(48, 3, 5, 20, 80, 6),
+(49, 4, 10, 60, 122, 1),
+(50, 4, 10, 60, 122, 2),
+(51, 4, 10, 60, 122, 3),
+(52, 4, 10, 60, 122, 4),
+(53, 4, 10, 60, 122, 5),
+(54, 4, 10, 50, 122, 1),
+(55, 4, 10, 50, 122, 2),
+(56, 4, 10, 50, 122, 3),
+(57, 4, 10, 50, 122, 4),
+(58, 4, 10, 50, 122, 5),
+(59, 4, 10, 40, 80, 1),
+(60, 4, 10, 40, 80, 2),
+(61, 4, 10, 40, 80, 3),
+(62, 4, 10, 40, 80, 4),
+(63, 4, 10, 40, 80, 5),
+(64, 4, 10, 30, 80, 1),
+(65, 4, 10, 30, 80, 2),
+(66, 4, 10, 30, 80, 3),
+(67, 4, 10, 30, 80, 4),
+(68, 4, 10, 30, 80, 5);
 
 -- --------------------------------------------------------
 
@@ -1988,16 +2468,19 @@ CREATE TABLE `staging_table` (
   `round_def_id` int(11) NOT NULL,
   `division_id` int(11) NOT NULL COMMENT 'Equipment used this session',
   `datetime` datetime NOT NULL,
-  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `comp_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `staging_table`
 --
 
-INSERT INTO `staging_table` (`staged_id`, `archer_id`, `round_def_id`, `division_id`, `datetime`, `status`) VALUES
-(1, 1, 2, 2, '2026-05-09 15:24:00', 'pending'),
-(2, 5, 1, 1, '2026-03-09 16:15:00', 'pending');
+INSERT INTO `staging_table` (`staged_id`, `archer_id`, `round_def_id`, `division_id`, `datetime`, `status`, `comp_id`) VALUES
+(1, 1, 2, 2, '2026-05-09 15:24:00', 'pending', NULL),
+(2, 5, 1, 1, '2026-03-09 16:15:00', 'pending', NULL),
+(3, 6, 5, 1, '2026-05-18 20:46:18', 'pending', NULL),
+(4, 24, 10, 4, '2026-05-23 11:21:20', 'pending', NULL);
 
 --
 -- Indexes for dumped tables
@@ -2014,22 +2497,22 @@ ALTER TABLE `age_class`
 --
 ALTER TABLE `archer_details`
   ADD PRIMARY KEY (`archer_id`),
-  ADD INDEX `division_id` (`division_id`);
+  ADD KEY `division_id` (`division_id`);
 
 --
 -- Indexes for table `arrow_shot`
 --
 ALTER TABLE `arrow_shot`
   ADD PRIMARY KEY (`arrow_id`),
-  ADD INDEX `end_id` (`end_id`);
+  ADD KEY `end_id` (`end_id`);
 
 --
 -- Indexes for table `categories`
 --
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`category_id`),
-  ADD INDEX `age_class_id` (`age_class_id`),
-  ADD INDEX `division_id` (`division_id`);
+  ADD KEY `age_class_id` (`age_class_id`),
+  ADD KEY `division_id` (`division_id`);
 
 --
 -- Indexes for table `comp`
@@ -2048,16 +2531,16 @@ ALTER TABLE `division`
 --
 ALTER TABLE `end_shot`
   ADD PRIMARY KEY (`end_id`),
-  ADD INDEX `range_shot_id` (`range_shot_id`);
+  ADD KEY `range_shot_id` (`range_shot_id`);
 
 --
 -- Indexes for table `equivalent_rounds`
 --
 ALTER TABLE `equivalent_rounds`
   ADD PRIMARY KEY (`equivalent_id`),
-  ADD INDEX `base_round_id` (`base_round_id`),
-  ADD INDEX `equivalent_round_id` (`equivalent_round_id`),
-  ADD INDEX `category_id` (`category_id`);
+  ADD KEY `base_round_id` (`base_round_id`),
+  ADD KEY `equivalent_round_id` (`equivalent_round_id`),
+  ADD KEY `category_id` (`category_id`);
 
 --
 -- Indexes for table `range_def`
@@ -2070,8 +2553,8 @@ ALTER TABLE `range_def`
 --
 ALTER TABLE `range_shot`
   ADD PRIMARY KEY (`range_shot_id`),
-  ADD INDEX `round_shots_id` (`round_shots_id`),
-  ADD INDEX `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`);
+  ADD KEY `round_shots_id` (`round_shots_id`),
+  ADD KEY `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`);
 
 --
 -- Indexes for table `round_def`
@@ -2084,34 +2567,35 @@ ALTER TABLE `round_def`
 --
 ALTER TABLE `round_shot`
   ADD PRIMARY KEY (`round_shots_id`),
-  ADD INDEX `round_def_id` (`round_def_id`),
-  ADD INDEX `archer_id` (`archer_id`),
-  ADD INDEX `category_id` (`category_id`),
-  ADD INDEX `comp_id` (`comp_id`);
+  ADD KEY `round_def_id` (`round_def_id`),
+  ADD KEY `archer_id` (`archer_id`),
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `comp_id` (`comp_id`);
 
 --
 -- Indexes for table `staging_arrow`
 --
 ALTER TABLE `staging_arrow`
   ADD PRIMARY KEY (`staging_arrow_id`),
-  ADD INDEX `staging_end_id` (`staging_end_id`);
+  ADD KEY `staging_end_id` (`staging_end_id`);
 
 --
 -- Indexes for table `staging_end`
 --
 ALTER TABLE `staging_end`
   ADD PRIMARY KEY (`staging_end_id`),
-  ADD INDEX `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`),
-  ADD INDEX `staging_id` (`staging_id`);
+  ADD KEY `range_def_round_id` (`range_def_round_id`,`range_def_distance`,`range_def_target_size`),
+  ADD KEY `staging_id` (`staging_id`);
 
 --
 -- Indexes for table `staging_table`
 --
 ALTER TABLE `staging_table`
   ADD PRIMARY KEY (`staged_id`),
-  ADD INDEX `archer_id` (`archer_id`),
-  ADD INDEX `round_def_id` (`round_def_id`),
-  ADD INDEX `division_id` (`division_id`);
+  ADD KEY `archer_id` (`archer_id`),
+  ADD KEY `round_def_id` (`round_def_id`),
+  ADD KEY `division_id` (`division_id`),
+  ADD KEY `staging_table_ibfk_4` (`comp_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -2133,7 +2617,7 @@ ALTER TABLE `archer_details`
 -- AUTO_INCREMENT for table `arrow_shot`
 --
 ALTER TABLE `arrow_shot`
-  MODIFY `arrow_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
+  MODIFY `arrow_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=289;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -2157,7 +2641,7 @@ ALTER TABLE `division`
 -- AUTO_INCREMENT for table `end_shot`
 --
 ALTER TABLE `end_shot`
-  MODIFY `end_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `end_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `equivalent_rounds`
@@ -2169,7 +2653,7 @@ ALTER TABLE `equivalent_rounds`
 -- AUTO_INCREMENT for table `range_shot`
 --
 ALTER TABLE `range_shot`
-  MODIFY `range_shot_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `range_shot_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `round_def`
@@ -2181,25 +2665,25 @@ ALTER TABLE `round_def`
 -- AUTO_INCREMENT for table `round_shot`
 --
 ALTER TABLE `round_shot`
-  MODIFY `round_shots_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `round_shots_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `staging_arrow`
 --
 ALTER TABLE `staging_arrow`
-  MODIFY `staging_arrow_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
+  MODIFY `staging_arrow_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=409;
 
 --
 -- AUTO_INCREMENT for table `staging_end`
 --
 ALTER TABLE `staging_end`
-  MODIFY `staging_end_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `staging_end_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT for table `staging_table`
 --
 ALTER TABLE `staging_table`
-  MODIFY `staged_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `staged_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -2279,7 +2763,8 @@ ALTER TABLE `staging_end`
 ALTER TABLE `staging_table`
   ADD CONSTRAINT `staging_table_ibfk_1` FOREIGN KEY (`archer_id`) REFERENCES `archer_details` (`archer_id`),
   ADD CONSTRAINT `staging_table_ibfk_2` FOREIGN KEY (`round_def_id`) REFERENCES `round_def` (`round_def_id`),
-  ADD CONSTRAINT `staging_table_ibfk_3` FOREIGN KEY (`division_id`) REFERENCES `division` (`division_id`);
+  ADD CONSTRAINT `staging_table_ibfk_3` FOREIGN KEY (`division_id`) REFERENCES `division` (`division_id`),
+  ADD CONSTRAINT `staging_table_ibfk_4` FOREIGN KEY (`comp_id`) REFERENCES `comp` (`comp_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
