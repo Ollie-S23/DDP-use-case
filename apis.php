@@ -148,7 +148,7 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
                     "SELECT * FROM equivalent_rounds"
                 ),
                 'competitions'      => queryRows($db,
-                    "SELECT comp_id, comp_name, comp_date FROM comp WHERE is_comp = 1 ORDER BY comp_date DESC"
+                    "SELECT comp_id, comp_name, comp_date FROM comp ORDER BY comp_date DESC"
                 ),
             ]);
             break;
@@ -262,7 +262,7 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
 
         // Submit a completed scoring session.
         // Body (JSON): archer_id, round_def_id, division_id, age_class_id,
-        //              is_competition (bool), comp_id (int|null),
+        //              comp_id (int|null — null means casual session),
         //              ranges: [{distance, target_size_cm, ends: [[scores]]}]
         case 'submit_session':
             if ($method !== 'POST') {
@@ -275,7 +275,6 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
             $round_id     = (int)($d['round_def_id'] ?? 0);
             $division_id  = (int)($d['division_id']  ?? 0);
             $age_class_id = (int)($d['age_class_id'] ?? 0);
-            $is_comp      = !empty($d['is_competition']);
             $comp_id      = !empty($d['comp_id']) ? (int)$d['comp_id'] : null;
             $ranges_data  = $d['ranges'] ?? [];
 
