@@ -103,12 +103,19 @@ export default {
         round_def_id: this.roundId,
         division_id: this.archer.division_id,
         age_class_id: this.archer.age_class_id,
-        is_competition: this.isComp,
         comp_id: this.isComp ? Number(this.$route.query.comp_id) : null,
         ranges: this.ranges.map((rng, idx) => ({
           distance: rng.distance,
           target_size_cm: rng.target_size_cm,
-          ends: this.scores[idx],
+          ends: this.scores[idx].map(end =>
+            [...end].sort((a, b) => {
+              const diff = this.numericVal(b) - this.numericVal(a)
+              if (diff !== 0) return diff
+              if (a === 'X' && b === '10') return -1
+              if (a === '10' && b === 'X') return 1
+              return 0
+            })
+          ),
         })),
       }
       try {

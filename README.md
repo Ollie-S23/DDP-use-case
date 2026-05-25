@@ -9,6 +9,13 @@ This task is exclusively for archers and do not include the recorders verifying 
 Additionally, this task does not have nay deployment to a sever and is all local (instructions below), and that some liberties were taken in for considering the design of this project while trying to keep the project brief in mind, no tables were changed from the latest design from Confluence. No security measure were added like a proper web application such as a login system. 
 The purpose of this was to show how an archer could responsibly enter there details, so functionality should reflect that, however the design of this application was not considered. 
 
+editors note: due to feedback and discussion taken place in the lecture and class on the 25th May 2026, the following was changed:
+- changed the date fields to datetime where appropriate
+- removed redundant is_approved in arrow_shot table
+- changed is_chomp in chomp to is_champ
+- made all data go to staging table instead of shots when casual and staging when competition
+- sorted the ends arrow to be highest to lowest in crud statement rather than gui frontend or db functions.
+It is to be noted that all functionality and reasonability checks are made in this program by CRUD statement rather than any in db; discussed in lecture. 
 
 > **Disclaimer:** XAMPP must be installed and fully set up before following these steps. It is assumed that Apache is running on port **80** (the XAMPP default). If you have changed the port, update `vite.config.js` accordingly.
 
@@ -50,7 +57,7 @@ Indexes are defined on all foreign key columns to speed up JOINs and lookups.
 | `round_shot` | `round_def_id`, `archer_id`, `category_id`, `comp_id` |
 | `staging_arrow` | `staging_end_id` |
 | `staging_end` | `range_def_round_id` + `range_def_distance` + `range_def_target_size`, `staging_id` |
-| `staging_table` | `archer_id`, `round_def_id`, `division_id` |
+| `staging_table` | `archer_id`, `round_def_id`, `division_id`, `comp_id` |
 
 ## SQL statements used in this project
 
@@ -70,7 +77,7 @@ SELECT * FROM division ORDER BY division_name;
 SELECT * FROM age_class ORDER BY gender, min_age;
 SELECT * FROM categories;
 SELECT * FROM equivalent_rounds;
-SELECT comp_id, comp_name, comp_date FROM comp WHERE is_comp = 1 ORDER BY comp_date DESC;
+SELECT comp_id, comp_name, comp_date FROM comp ORDER BY comp_date DESC;
 ```
 
 ### Valid age classes for a round (3 cases)
@@ -134,11 +141,13 @@ SELECT * FROM division ORDER BY division_name;
 SELECT * FROM range_def WHERE round_def_id = :round_id ORDER BY distance DESC;
 ```
 
-### Submit session — competition (goes to staging, pending recorder approval)
+### Submit session — all sessions go to staging (pending recorder approval. Regardless if comp or casual)
+
+All submissions — both casual and competition — are inserted into the staging tables. `comp_id` is the competition ID if one was selected, or `NULL` for a casual session. `datetime` is captured at the moment of submission via `NOW()`.
 
 ```sql
-INSERT INTO staging_table (archer_id, round_def_id, division_id, datetime, status)
-VALUES (:archer_id, :round_id, :division_id, NOW(), 'pending');
+INSERT INTO staging_table (archer_id, round_def_id, division_id, comp_id, datetime, status)
+VALUES (:archer_id, :round_id, :division_id, :comp_id_or_null, NOW(), 'pending');
 
 INSERT INTO staging_end (staging_id, range_def_round_id, range_def_distance, range_def_target_size, end_number)
 VALUES (:staged_id, :round_id, :distance, :target_size, :end_number);
@@ -147,20 +156,20 @@ INSERT INTO staging_arrow (staging_end_id, score, is_x)
 VALUES (:staging_end_id, :score, :is_x);
 ```
 
-### Submit session — practice (written directly to permanent tables)
+### edit statements for database from feedback
 
 ```sql
--- Resolve category (same 3-case logic as above, returns category_id)
+-- Rename is_comp to is_champ in comp table
+ALTER TABLE `comp` CHANGE `is_comp` `is_champ` tinyint(1) NOT NULL DEFAULT 0;
 
-INSERT INTO round_shot (round_def_id, archer_id, category_id, comp_id, placement, round_shots_date)
-VALUES (:round_id, :archer_id, :category_id, :comp_id, NULL, :today);
+-- Remove is_approved from arrow_shot
+ALTER TABLE `arrow_shot` DROP COLUMN `is_approved`;
 
-INSERT INTO range_shot (round_shots_id, range_def_round_id, range_def_distance, range_def_target_size)
-VALUES (:round_shots_id, :round_id, :distance, :target_size);
+-- Add nullable comp_id FK to staging_table
+ALTER TABLE `staging_table`
+  ADD COLUMN `comp_id` int(11) DEFAULT NULL,
+  ADD CONSTRAINT `staging_table_ibfk_4` FOREIGN KEY (`comp_id`) REFERENCES `comp` (`comp_id`);
 
-INSERT INTO end_shot (range_shot_id, end_number)
-VALUES (:range_shot_id, :end_number);
-
-INSERT INTO arrow_shot (end_id, score, isX_score, is_approved)
-VALUES (:end_id, :score, :is_x, 0);
+-- Rename round_shots_date to round_shots_datetime and change type to DATETIME
+ALTER TABLE `round_shot` CHANGE `round_shots_date` `round_shots_datetime` DATETIME NOT NULL;
 ```
