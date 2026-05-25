@@ -119,6 +119,7 @@ try {
 function handleNamedQuery(PDO $db, string $name, string $method, ?array $input = null): void {
     switch ($name) {
 
+        // Note: this sql crud qeuery is used
         // Everything the setup screen needs — 6 tables, 1 HTTP request.
         case 'setup_data':
             echo json_encode([
@@ -153,6 +154,7 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
             ]);
             break;
 
+        // note: this crud qeuery was never used, and is controlled now by js
         // Valid age classes for one archer on one round.
         // Params: round_id (int), gender (M/F), age (int)
         case 'valid_age_classes':
@@ -212,6 +214,7 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
             echo json_encode(queryRows($db, $sql));
             break;
 
+        // note: this crud qeuery was never used, and is controlled now by js
         // Valid divisions for one archer (by age class) on one round.
         // Params: round_id (int), age_class_id (int)
         case 'valid_divisions':
@@ -260,6 +263,7 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
             echo json_encode(queryRows($db, $sql));
             break;
 
+        // Note: this sql crud qeuery is used
         // Submit a completed scoring session.
         // Body (JSON): archer_id, round_def_id, division_id, age_class_id,
         //              comp_id (int|null — null means casual session),
@@ -318,6 +322,7 @@ function handleNamedQuery(PDO $db, string $name, string $method, ?array $input =
             }
             break;
 
+        // Note: this sql crud qeuery is used
         // Ranges (with end count) for a given round.
         // Params: round_id (int)
         case 'ranges_for_round':

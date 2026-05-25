@@ -63,6 +63,7 @@ Indexes are defined on all foreign key columns to speed up JOINs and lookups.
 
 ### Setup screen — load all reference data
 
+Note: this sql crud qeuery is used
 ```sql
 SELECT rd.round_def_id, rd.round_name,
        COALESCE(SUM(rng.num_ends) * 6, 0) AS arrow_count
@@ -82,6 +83,7 @@ SELECT comp_id, comp_name, comp_date FROM comp ORDER BY comp_date DESC;
 
 ### Valid age classes for a round (3 cases)
 
+note: this crud qeuery was never used, and is controlled now by js
 ```sql
 -- Case A: round is an equivalent round
 SELECT DISTINCT ac.*
@@ -112,6 +114,7 @@ AND    (max_age IS NULL OR max_age >= :age);
 
 ### Valid divisions for a round + age class (3 cases)
 
+note: this crud qeuery was never used, and is controlled now by js
 ```sql
 -- Case A
 SELECT DISTINCT d.*
@@ -137,6 +140,7 @@ SELECT * FROM division ORDER BY division_name;
 
 ### Ranges for a round
 
+Note: this sql crud qeuery is used
 ```sql
 SELECT * FROM range_def WHERE round_def_id = :round_id ORDER BY distance DESC;
 ```
@@ -145,6 +149,7 @@ SELECT * FROM range_def WHERE round_def_id = :round_id ORDER BY distance DESC;
 
 All submissions — both casual and competition — are inserted into the staging tables. `comp_id` is the competition ID if one was selected, or `NULL` for a casual session. `datetime` is captured at the moment of submission via `NOW()`.
 
+Note: this sql crud qeuery is used
 ```sql
 INSERT INTO staging_table (archer_id, round_def_id, division_id, comp_id, datetime, status)
 VALUES (:archer_id, :round_id, :division_id, :comp_id_or_null, NOW(), 'pending');
@@ -158,6 +163,7 @@ VALUES (:staging_end_id, :score, :is_x);
 
 ### edit statements for database from feedback
 
+Note: this sql crud query was for development and concepts. never applied
 ```sql
 -- Rename is_comp to is_champ in comp table
 ALTER TABLE `comp` CHANGE `is_comp` `is_champ` tinyint(1) NOT NULL DEFAULT 0;
